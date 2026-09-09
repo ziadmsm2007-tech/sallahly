@@ -204,11 +204,13 @@
         <span class="tala-bnav-icon">🔍</span>
         <small>{{ t('nav_services') }}</small>
     </a>
-    <a href="{{ url_for('cart_page') if current_user and current_user.role=='client' else url_for('login') }}" class="tala-bnav-item position-relative {% if request.endpoint=='cart_page' %}active{% endif %}">
+    {% if current_user and current_user.role=='client' %}
+    <a href="{{ url_for('cart_page') }}" class="tala-bnav-item position-relative {% if request.endpoint=='cart_page' %}active{% endif %}">
         <span class="tala-bnav-icon">🛒</span>
         <small>Cart</small>
         {% if cart_count %}<span class="tala-bnav-badge">{{ cart_count }}</span>{% endif %}
     </a>
+    {% endif %}
     <a href="{{ url_for('customer_dashboard') if current_user and current_user.role=='client' else url_for('technical_dashboard') if current_user and current_user.role=='technician' else url_for('admin_dashboard') if current_user and current_user.email.lower()==owner_email else url_for('login') }}" class="tala-bnav-item {% if request.endpoint in ['customer_dashboard','technical_dashboard','admin_dashboard','my_orders'] %}active{% endif %}">
         <span class="tala-bnav-icon">👤</span>
         <small>{{ 'Account' if lang!='ar' else 'حسابي' }}</small>

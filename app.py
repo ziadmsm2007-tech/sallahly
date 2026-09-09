@@ -248,10 +248,6 @@ def register_routes(app):
 
             user = models.verify_user(email, password)
             if user:
-                # الفني لازم موافقة الإدارة
-                if user["role"] == "technician" and not user.get("is_approved"):
-                    flash("flash_tech_pending")
-                    return redirect(url_for("login"))
                 session["user_id"] = user["id"]
                 session["role"] = user["role"]
                 session["name"] = user["name"]
@@ -917,6 +913,23 @@ def register_routes(app):
         if u:
             models.add_notification(user_id, "تمت الموافقة ✅", "يمكنك الآن استقبال الطلبات")
         flash("flash_tech_approved")
+        return redirect(url_for("admin_dashboard"))
+
+    @app.route("/ban_technician/<int:user_id>", methods=["POST"])
+    @owner_required
+    def ban_technician(user_id):
+        with models.get_db() as conn:
+            conn.execute("UPDATE users SET is_approved=0 WHERE id=?", (user_id,))
+        flash("تم حظر الفني")
+        return redirect(url_for("admin_dashboard"))
+
+    @app.route("/remove_technician/<int:user_id>", methods=["POST"])
+    @owner_required
+    def remove_technician(user_id):
+        with models.get_db() as conn:
+            conn.execute("DELETE FROM users WHERE id=?", (user_id,))
+            conn.execute("DELETE FROM wallets WHERE user_id=?", (user_id,))
+        flash("تم حذف الفني")
         return redirect(url_for("admin_dashboard"))
 
     @app.route("/invoice/<int:order_id>")

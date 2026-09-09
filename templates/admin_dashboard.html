@@ -103,6 +103,48 @@
 </div>
 {% endif %}
 
+<div class="panel fade-up mb-4" style="border:1px solid #e5e7eb;">
+    <div class="panel-head"><span>👷 إدارة الفنيين — يدخل مباشرة، ويمكنك حظره لو مخالف</span></div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="tbl-modern">
+                <thead><tr><th>الفني</th><th>المحافظة</th><th>التقييم</th><th>حالة</th><th>إجراء</th></tr></thead>
+                <tbody>
+                    {% for u in users_data if u.role == 'technician' %}
+                    <tr>
+                        <td>
+                            <div class="d-flex gap-2 align-items-center">
+                                {% if u.photo %}<img src="{{ url_for('static', filename=u.photo) }}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">{% else %}<div style="width:36px; height:36px; border-radius:50%; background:#f3f4f6; display:grid; place-items:center;">👤</div>{% endif %}
+                                <div><div class="fw-bold" style="font-size:.9rem;">{{ u.name }}</div><div class="small text-muted">{{ u.email }}</div></div>
+                            </div>
+                        </td>
+                        <td><small>{{ u.governorate or '—' }}</small></td>
+                        <td><small>⭐ {{ "%.1f"|format(u.rating_avg or 0) }} ({{ u.rating_count or 0 }})</small></td>
+                        <td>{% if u.is_approved %}<span class="st-badge st-completed">✅ نشط</span>{% else %}<span class="st-badge st-rejected">⛔ محظور</span>{% endif %}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                {% if u.is_approved %}
+                                <form method="POST" action="{{ url_for('ban_technician', user_id=u.id) }}" onsubmit="return confirm('حظر الفني؟')">
+                                    <button class="btn btn-outline-danger btn-sm">⛔ حظر</button>
+                                </form>
+                                {% else %}
+                                <form method="POST" action="{{ url_for('approve_technician', user_id=u.id) }}">
+                                    <button class="btn btn-success btn-sm">✅ فك الحظر</button>
+                                </form>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('remove_technician', user_id=u.id) }}" onsubmit="return confirm('حذف نهائي؟')">
+                                    <button class="btn btn-outline-secondary btn-sm">🗑️ حذف</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <div class="panel fade-up mb-4" style="border: 1.5px solid var(--talabat);">
     <div class="panel-head" style="border-left-color: var(--talabat); background: #fff7ed;"><span>💰 {{ t('admin_money_title') }}</span></div>
     <div class="panel-body">

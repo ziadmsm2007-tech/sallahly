@@ -28,7 +28,7 @@ def verify_user(email, password):
 def create_user(name, email, password, role, governorate=None, city=None, address=None, lat=None, lng=None, photo=None, referral_code_input=None):
     with get_db() as conn:
         try:
-            is_approved = 0 if role == "technician" else 1
+            is_approved = 1  # الكل يدخل علطول — الإدارة تقدر تشيله لو مخالف
             my_code = f"DR{str(conn.execute('SELECT COALESCE(MAX(id),0)+1 FROM users').fetchone()[0]).zfill(4)}{uuid.uuid4().hex[:3].upper()}"
             referred_by = None
             if referral_code_input:
