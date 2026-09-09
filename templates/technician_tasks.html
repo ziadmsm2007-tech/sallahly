@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav_my_tasks') }} - صلحلي{% endblock %}
+{% block content %}
+<div class="page-head fade-up">
+    <h3>🧰 {{ t('nav_my_tasks') }}</h3>
+    <p>{{ tasks | length }} {{ t('order_no') }}</p>
+</div>
+
+<div class="panel fade-up">
+    <div class="panel-body">
+        {% if tasks %}
+        <div class="table-responsive">
+            <table class="tbl-modern">
+                <thead>
+                    <tr>
+                        <th>{{ t('th_id') }}</th>
+                        <th>{{ t('th_service') }}</th>
+                        <th>{{ t('th_location') }}</th>
+                        <th>{{ t('th_price') }}</th>
+                        <th>{{ t('th_status') }}</th>
+                        <th>{{ t('th_actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>#{{ task.id }}</td>
+                        <td>
+                            <div class="fw-bold" style="color:var(--navy-800)">{{ task.service_name }}</div>
+                            {% if task.car_make %}<div><span class="st-badge" style="background:#fff3e0;color:#e65100; font-size:.75rem;">🚗 {{ task.car_make }} {{ task.car_model or '' }} {{ task.car_year or '' }}</span></div>{% endif %}
+                        </td>
+                        <td>{{ task.location }}</td>
+                        <td>
+                            {% if task.service_price == 0 %}
+                                <span class="st-badge" style="background:#fef3c7;color:#92400e;">يحدد بعد المعاينة</span>
+                            {% else %}
+                                {{ task.service_price }} ج.م
+                            {% endif %}
+                        </td>
+                        <td><span class="st-badge st-{{ task.status|lower|replace(' ', '-') }}">{{ t('status_' ~ task.status|lower|replace(' ', '_')) }}</span></td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap align-items-center">
+                                {% if task.status == 'In Progress' %}
+                                    {% if task.service_price == 0 %}
+                                    <form method="POST" action="{{ url_for('set_price', order_id=task.id) }}" class="d-flex gap-1">
+                                        <input type="number" name="final_price" class="form-control form-control-sm" placeholder="السعر" style="width:90px;" required>
+                                        <button class="btn btn-warning btn-sm">💰 حدد السعر</button>
+                                    </form>
+                                    {% else %}
+                                    <a href="{{ url_for('technician_complete_order', order_id=task.id) }}" class="btn btn-primary btn-sm">{{ t('btn_complete') }}</a>
+                                    {% endif %}
+                                {% elif task.status == 'Awaiting Payment' and task.payment_status == 'Escrow' %}
+                                <form method="POST" action="{{ url_for('confirm_escrow', order_id=task.id) }}" class="d-flex gap-1">
+                                    <input type="text" name="otp" class="form-control form-control-sm" placeholder="كود العميل" maxlength="4" style="width:90px;" required>
+                                    <button class="btn btn-success btn-sm">🔓 تأكيد الدفع</button>
+                                </form>
+                                {% elif task.status == 'Awaiting Payment' %}
+                                <span class="small text-muted">بانتظار دفع العميل</span>
+                                {% endif %}
+                                <a href="{{ url_for('reverse_order', order_id=task.id) }}" class="btn btn-soft btn-sm">{{ t('btn_details') }}</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><span class="empty-icon">📭</span><p class="mb-0">{{ t('tech_no_tasks') }}</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

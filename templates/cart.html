@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Basket - صلحلي{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <a href="{{ url_for('customer_services') }}" class="btn btn-sm" style="background:#fff; border:1px solid #e0e0e0; border-radius:50%; width:36px; height:36px; display:grid; place-items:center;">←</a>
+    <h5 class="fw-bold mb-0" style="color:#212121;">🛒 Basket ({{ services|length }})</h5>
+    <span style="background:#fff0e6; border:1px solid #ffcc99; color:#ff5a00; border-radius:50rem; padding:.2rem .6rem; font-weight:800; font-size:.78rem;">Talabat • 30 min</span>
+</div>
+
+{% if services %}
+{% set subtotal = total_base %}
+{% set total = subtotal %}
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <!-- Talabat vendor bar -->
+        <div class="p-3 mb-3 d-flex align-items-center gap-3" style="background:#fff; border:1px solid #eeeeee; border-radius:14px;">
+            <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg,#ff5a00,#ff7a33); display:grid; place-items:center; color:#fff; font-size:1.4rem;">🔧</div>
+            <div class="flex-grow-1">
+                <div class="fw-bold" style="color:#212121;">صلحلي — Car Services</div>
+                <small class="text-muted">⭐ 4.8 •  • </small>
+            </div>
+            <span style="background:#e8f5e9; color:#2e7d32; border-radius:50rem; padding:.2rem .6rem; font-weight:800; font-size:.75rem;">● Open</span>
+        </div>
+
+        {% for s in services %}
+        <div class="tala-menu-card mb-3 align-items-center">
+            <img src="https://picsum.photos/seed/svc{{ s.id }}/120/120" style="width:72px; height:72px; object-fit:cover; border-radius:12px; border:1px solid #f5f5f5; flex-shrink:0;" onerror="this.style.display='none'">
+            <div class="flex-grow-1 min-w-0">
+                <div class="fw-bold" style="color:#212121; font-size:.95rem;">{{ s.name }}</div>
+                <div class="small text-muted" style="font-size:.82rem; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">{{ s.description }}</div>
+                <div class="mt-1">
+                    <small class="text-muted" style="font-size:.76rem; color:#ff5a00; font-weight:700;">🚗 السعر حسب عربيتك — يظهر في الدفع</small>
+                </div>
+            </div>
+            <div class="d-flex flex-column gap-2 align-items-center" style="flex-shrink:0;">
+                <div class="tala-qty">
+                    <form method="POST" action="{{ url_for('remove_from_cart', service_id=s.id) }}" style="display:contents;">
+                        <button type="submit" title="Remove">−</button>
+                    </form>
+                    <span>1</span>
+                    <form method="POST" action="{{ url_for('add_to_cart', service_id=s.id) }}" style="display:contents;">
+                        <button type="submit" title="Add one more" disabled style="opacity:.4; cursor:not-allowed;">+</button>
+                    </form>
+                </div>
+                <form method="POST" action="{{ url_for('remove_from_cart', service_id=s.id) }}">
+                    <button class="btn btn-sm" style="background:#fff; border:1px solid #ffcdd2; color:#c62828; border-radius:50rem; font-weight:700; font-size:.72rem; padding:.2rem .6rem;">Remove</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+
+        <a href="{{ url_for('customer_services') }}" class="btn w-100" style="background:#fff; border:1.5px solid #ff5a00; color:#ff5a00; border-radius:50rem; font-weight:800; padding:.7rem;">+ Add more services</a>
+
+        <div class="mt-3 p-3" style="background:#fffbe6; border:1px solid #ffe082; border-radius:12px;">
+            <small style="color:#795548; font-size:.82rem; line-height:1.4;">💡 Tip: Add 2+ services — Service on us over 500 EGP. Your final price per car tier is calculated at checkout (luxury/mid/economy).</small>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="tala-basket" style="position:sticky; top:90px;">
+            <div class="tala-basket-head">
+                <span>Order summary</span>
+                <small class="text-muted" style="font-size:.75rem;">{{ services|length }} items</small>
+            </div>
+            <div class="tala-basket-row muted">
+                <span>Subtotal</span>
+                <span class="small text-muted">حسب عربيتك</span>
+            </div>
+            <div class="tala-basket-row muted">
+                <span>Service</span>
+                <span>EGP {{ delivery_fee }}</span>
+            </div>
+            <div class="tala-basket-row muted">
+                <span></span>
+                <span>EGP {{ service_fee }}</span>
+            </div>
+            {% if subtotal >= 500 %}
+            <div class="tala-basket-row" style="color:#2e7d32; font-weight:800; background:#e8f5e9; margin:.4rem 1rem; border-radius:8px; padding:.5rem .75rem;">
+                <span>🎉 </span>
+                <span>-EGP {{ delivery_fee }}</span>
+            </div>
+            {% endif %}
+            <div class="tala-basket-total">
+                <span>Total</span>
+                <span class="small text-muted">يحدد بعد اختيار العربية</span>
+            </div>
+            <div class="tala-promo">
+                <input type="text" placeholder="Promo code" id="promoInput">
+                <button class="btn btn-sm" style="background:#212121; color:#fff; border-radius:12px; font-weight:800;" onclick="document.getElementById('promoInput').value && (location.href='{{ url_for('checkout') }}')">Apply</button>
+            </div>
+            <div class="p-3">
+                <a href="{{ url_for('checkout') }}" class="btn w-100 btn-lg" style="background:#ff5a00; border-color:#ff5a00; color:#fff; font-weight:900; border-radius:14px; box-shadow:0 6px 16px rgba(255,90,0,.25);">Go to checkout →</a>
+                <div class="text-center mt-2">
+                    <small class="text-muted" style="font-size:.76rem;">⏱ الخدمة خلال 30 دقيقة • Min order 0 EGP</small>
+                </div>
+                <a href="{{ url_for('customer_services') }}" class="btn w-100 mt-2" style="background:#fff; border:1px solid #e0e0e0; border-radius:50rem; font-weight:700; color:#424242;">Continue shopping</a>
+            </div>
+        </div>
+
+        <div class="mt-3 p-3" style="background:#fff; border:1px solid #eeeeee; border-radius:14px;">
+            <div class="fw-bold mb-2" style="color:#212121; font-size:.9rem;">تفاصيل الخدمة</div>
+            <div class="small text-muted" style="font-size:.82rem; line-height:1.5;">
+                📍 عنوان الخدمة set at checkout<br>
+                🕒 وقت الخدمة: 30-45 min after confirmation<br>
+                💳 Pay cash, card or InstaPay — Talabat style
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="empty-state py-5" style="background:#fff; border:1px solid #eeeeee; border-radius:16px;">
+    <span class="empty-icon" style="font-size:3rem;">🛒</span>
+    <h6 class="fw-bold mt-2" style="color:#212121;">Your basket is empty</h6>
+    <p class="text-muted" style="font-size:.9rem;">Add services like Talabat — tap ADD on any service</p>
+    <a href="{{ url_for('customer_services') }}" class="btn" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800; padding:.6rem 1.4rem;">Browse services</a>
+</div>
+{% endif %}
+{% endblock %}

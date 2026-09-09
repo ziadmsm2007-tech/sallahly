@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}{% if active_cat %}{{ active_cat }} - {{ t('nav_services') }}{% else %}{{ t('nav_services') }}{% endif %} - صلحلي{% endblock %}
+{% block content %}
+
+<!-- Talabat vendor header — like restaurant header -->
+<div class="p-3 mb-3" style="background:#fff; border:1px solid #eeeeee; border-radius:18px; box-shadow:0 2px 10px rgba(0,0,0,.04);">
+    <div class="d-flex gap-3 align-items-start">
+        <div style="width:64px; height:64px; border-radius:16px; background:linear-gradient(135deg,#ff5a00,#ff7a33); display:grid; place-items:center; font-size:1.8rem; color:#fff; flex-shrink:0; box-shadow:0 4px 12px rgba(255,90,0,.25);">🔧</div>
+        <div class="flex-grow-1 min-w-0">
+            <h5 class="fw-bold mb-1" style="color:#212121; font-size:1.15rem;">{% if active_cat %}{{ active_cat }}{% else %}All Services — صلحلي{% endif %} <span style="background:#fff0e6; border:1px solid #ffcc99; color:#ff5a00; border-radius:50rem; padding:.15rem .5rem; font-size:.72rem;">Talabat mode</span></h5>
+            <div class="d-flex align-items-center gap-2 flex-wrap" style="font-size:.82rem;">
+                <span style="display:inline-flex; align-items:center; gap:.25rem; background:#e8f5e9; color:#2e7d32; font-weight:800; padding:.15rem .5rem; border-radius:50rem;">⭐ 4.8 (3.9k)</span>
+                <span class="text-muted">• 30-45 min</span>
+                <span class="text-muted">• {{ services|length }} {{ t('services_available') }}</span>
+                <span style="background:#fff3e0; color:#e65100; border:1px solid #ffcc99; border-radius:50rem; padding:.15rem .5rem; font-weight:700; font-size:.75rem;">🚚 </span>
+            </div>
+            <div class="mt-2 d-flex gap-2 flex-wrap">
+                <span class="d-inline-flex align-items-center gap-1" style="font-size:.76rem; color:#616161;"><span style="width:8px; height:8px; background:#00a651; border-radius:50%; display:inline-block;"></span> Open now</span>
+                <span class="text-muted" style="font-size:.76rem;">•  • </span>
+            </div>
+        </div>
+        <div class="d-none d-md-flex flex-column gap-2">
+            <a href="{{ url_for('cart_page') }}" class="btn btn-sm" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800;">🛒 Basket</a>
+            <small class="text-muted text-center" style="font-size:.72rem;">Min 0 EGP</small>
+        </div>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+        <a href="#svcGrid" class="btn btn-sm" style="background:#212121; color:#fff; border-radius:50rem; font-weight:700;">Menu</a>
+        <a href="#reviews" class="btn btn-sm" style="background:#fff; border:1px solid #e0e0e0; color:#424242; border-radius:50rem; font-weight:700;">Reviews</a>
+        <a href="{{ url_for('my_orders') }}" class="btn btn-sm" style="background:#fff; border:1px solid #e0e0e0; color:#424242; border-radius:50rem; font-weight:700;">Orders</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Left category nav — desktop only Talabat -->
+    <div class="col-lg-3 d-none d-lg-block">
+        <div style="position:sticky; top:92px; background:#fff; border:1px solid #eeeeee; border-radius:16px; overflow:hidden;">
+            <div class="p-3 fw-bold" style="border-bottom:1px solid #f5f5f5; color:#212121;">Categories</div>
+            <div class="d-flex flex-column">
+                <a href="{{ url_for('customer_services') }}" class="text-decoration-none p-3 d-flex justify-content-between align-items-center {{ 'active' if not active_cat else '' }}" style="border-left:3px solid {{ '#ff5a00' if not active_cat else 'transparent' }}; background:{{ '#fff7ed' if not active_cat else '#fff' }}; color:{{ '#ff5a00' if not active_cat else '#424242' }}; font-weight:800; font-size:.88rem;">
+                    <span>All</span><small class="text-muted">{{ all_categories.values()|map('length')|sum }}</small>
+                </a>
+                {% for key, svs in all_categories.items() %}
+                {% set loc = localize_category(key, lang) %}
+                <a href="{{ url_for('customer_services', cat=key) }}" class="text-decoration-none p-2 px-3 d-flex justify-content-between align-items-center" style="border-left:3px solid {{ '#ff5a00' if active_cat == loc else 'transparent' }}; background:{{ '#fff7ed' if active_cat == loc else '#fff' }}; color:{{ '#ff5a00' if active_cat == loc else '#424242' }}; font-weight:{{ '800' if active_cat == loc else '600' }}; font-size:.86rem;">
+                    <span>{{ loc }}</span><small style="background:#f5f5f5; border-radius:50rem; padding:.1rem .45rem; font-size:.72rem;">{{ svs|length }}</small>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="p-3" style="border-top:1px solid #f5f5f5; background:#fffdf7;">
+                <div style="font-weight:800; font-size:.85rem; color:#212121;">🛒 Your basket</div>
+                <small class="text-muted" style="font-size:.76rem;">Add services — delivery in 30 min</small>
+                <a href="{{ url_for('cart_page') }}" class="btn btn-sm w-100 mt-2" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800;">View basket</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right menu -->
+    <div class="col-lg-9">
+        <!-- Search + voice -->
+        <div class="p-2 mb-3 d-flex gap-2 align-items-center" style="background:#fff; border:1px solid #eeeeee; border-radius:14px;">
+            <div class="input-icon-wrap flex-grow-1">
+                <span class="lead">🔎</span>
+                <input type="text" id="svcSearch" class="form-control" placeholder="{{ 'Search menu...' if lang!='ar' else 'دوّر في المنيو...' }}" oninput="filterServices(this.value)" style="border-radius:50rem; border:1.5px solid #f0f0f0;">
+            </div>
+            <button id="voiceBtn" class="btn" title="🎙️" style="background:#fff7ed; border:1px solid #ffcc99; color:#ff5a00; border-radius:50%; width:42px; height:42px; display:grid; place-items:center; flex-shrink:0;">🎙️</button>
+        </div>
+        <div id="voiceStatus" class="small text-muted mb-2" style="display:none;">🎙️ Listening... say "oil change"</div>
+
+        <!-- Talabat chips -->
+        <div class="tala-chips mb-3">
+            <a href="{{ url_for('customer_services') }}" class="tala-chip {{ 'active' if not active_cat else '' }}">{{ t('services_title') }}</a>
+            {% for key, svs in all_categories.items() %}
+            <a href="{{ url_for('customer_services', cat=key) }}" class="tala-chip {{ 'active' if active_cat == localize_category(key, lang) else '' }}">{{ localize_category(key, lang) }}</a>
+            {% endfor %}
+        </div>
+
+        <div id="svcGrid" class="d-flex flex-column gap-3">
+            {% for service in services %}
+            <div class="tala-menu-card svc-item">
+                <div class="tala-menu-info">
+                    <div class="tala-menu-title"><span class="tala-menu-veg"></span> {{ service.name }}</div>
+                    <div class="tala-menu-desc">{{ service.description }}</div>
+                    <div class="tala-menu-meta">
+                        <span class="tala-menu-rating">⭐ 4.8</span>
+                        <span>• 30 min</span>
+                        <span>• 🛡️ Warranty</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        {% if service.variable_price %}
+                        <span style="background:#fef3c7; color:#92400e; border:1px solid #fde68a; border-radius:50rem; padding:.15rem .5rem; font-weight:700; font-size:.72rem;">يحدد بعد المعاينة</span>
+                        {% else %}
+                        <span class="small text-muted" style="font-size:.78rem; color:#ff5a00; font-weight:700;">🚗 السعر حسب عربيتك</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="tala-menu-img-wrap">
+                    <img class="tala-menu-img" src="https://picsum.photos/seed/svc{{ service.id }}/220/220" alt="{{ service.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                    <div style="display:none; width:110px; height:110px; border-radius:12px; background:#fff7ed; border:1px solid #ffcc99; place-items:center; font-size:2rem;">🔧</div>
+                    <form method="POST" action="{{ url_for('add_to_cart', service_id=service.id) }}" class="w-100">
+                        <button class="tala-add-btn w-100">ADD +</button>
+                    </form>
+                    <a href="{{ url_for('service_details', service_id=service.id) }}" style="font-size:.72rem; color:#757575; font-weight:700; text-decoration:none;">Details →</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="empty-state d-none" id="svcEmpty">
+            <span class="empty-icon">🔍</span>
+            <p class="mb-0">No services match your search</p>
+        </div>
+
+        <!-- Talabat info footer -->
+        <div class="mt-3 p-3" style="background:#fff; border:1px solid #eeeeee; border-radius:14px;">
+            <small class="text-muted" style="font-size:.78rem; line-height:1.5;">💡 Prices vary by car tier (luxury/mid/economy) — final price shown at checkout. Service 30 EGP, . </small>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile sticky basket -->
+{% if cart_count %}
+<a href="{{ url_for('cart_page') }}" class="tala-sticky-basket d-lg-none">
+    <span>🛒 {{ cart_count }} items</span>
+    <strong>View basket →</strong>
+</a>
+{% endif %}
+
+<script>
+window.filterServices = function(q) {
+    q = (q || '').toLowerCase().trim();
+    let shown = 0;
+    document.querySelectorAll('.svc-item').forEach(el => {
+        const match = !q || el.textContent.toLowerCase().indexOf(q) !== -1;
+        el.style.display = match ? '' : 'none';
+        if (match) shown++;
+    });
+    const empty = document.getElementById('svcEmpty');
+    if(empty) empty.classList.toggle('d-none', shown !== 0);
+    // sync tala search
+    const talaInp = document.getElementById('talaSearchInput');
+    const svcInp = document.getElementById('svcSearch');
+    if(talaInp && svcInp && document.activeElement !== talaInp) talaInp.value = q;
+    if(svcInp && talaInp && document.activeElement !== svcInp) svcInp.value = q;
+}
+// init from ?q=
+(function(){
+  try{
+    const qp = new URLSearchParams(location.search).get('q');
+    if(qp){
+      const inp = document.getElementById('svcSearch');
+      if(inp) inp.value = qp;
+      window.filterServices(qp);
+      const tala = document.getElementById('talaSearchInput');
+      if(tala) tala.value = qp;
+    }
+  }catch(e){}
+})();
+// Voice search
+(function(){
+    var btn=document.getElementById('voiceBtn');
+    var input=document.getElementById('svcSearch');
+    var status=document.getElementById('voiceStatus');
+    if(!btn || !('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { if(btn) btn.style.display='none'; return; }
+    var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var rec = new Rec();
+    rec.lang = document.documentElement.lang === 'ar' ? 'ar-EG' : 'en-US';
+    rec.interimResults=false;
+    btn.addEventListener('click', function(){
+        rec.start();
+        btn.style.background='#ff5a00'; btn.style.color='#fff';
+        if(status) status.style.display='';
+    });
+    rec.onresult = function(e){
+        var txt = e.results[0][0].transcript;
+        if(input) input.value = txt;
+        window.filterServices(txt);
+        const tala=document.getElementById('talaSearchInput'); if(tala) tala.value=txt;
+        if(status) status.style.display='none';
+        btn.style.background=''; btn.style.color='';
+    };
+    rec.onend = function(){ if(status) status.style.display='none'; btn.style.background=''; btn.style.color=''; };
+    rec.onerror = function(){ if(status) status.style.display='none'; btn.style.background=''; btn.style.color=''; };
+})();
+</script>
+{% endblock %}

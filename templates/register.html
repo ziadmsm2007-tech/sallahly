@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}{{ t('auth_register_title') }} - صلحلي{% endblock %}
+{% block extra_css %}
+<style>
+.loc-result { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:12px; padding:10px 14px; min-height:46px; font-size:.88rem; display:flex; align-items:center; gap:8px; }
+.loc-result.has-value { background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap fade-up">
+    <div class="auth-card">
+        <div class="auth-head">
+            <div class="auth-icon">🚗</div>
+            <h3 class="mb-1">{{ t('auth_register_title') }}</h3>
+            <p class="mb-0" style="color:rgba(255,255,255,.8)">{{ t('auth_register_sub') }}</p>
+        </div>
+        <div class="auth-body">
+            <form method="POST" id="regForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">{{ t('auth_full_name') }}</label>
+                    <div class="input-icon-wrap">
+                        <span class="lead">👤</span>
+                        <input type="text" name="name" class="form-control" placeholder="Ahmed Ali" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t('auth_email') }}</label>
+                    <div class="input-icon-wrap">
+                        <span class="lead">✉️</span>
+                        <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t('auth_password') }}</label>
+                    <div class="input-icon-wrap">
+                        <span class="lead">🔑</span>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" minlength="6" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ t('auth_governorate') }} *</label>
+                    <select name="governorate" id="governorate" class="form-select" required>
+                        <option value="">{{ t('auth_governorate') }}...</option>
+                        {% for gov in governorates %}
+                        <option value="{{ gov }}">{{ gov }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t('auth_city') }}</label>
+                    <input type="text" name="city" id="city" class="form-control" placeholder="المنصورة / مدينة نصر ...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ t('auth_address') }}</label>
+                    <div class="d-flex gap-2 mb-2">
+                        <button type="button" id="useLocBtn" class="btn btn-outline-secondary btn-sm">📍 {{ t('auth_use_location') }}</button>
+                        <span class="small text-muted align-self-center">{{ t('geo_hint') }}</span>
+                    </div>
+                    <div class="loc-result" id="locResult">
+                        <span>📍</span><span id="locText">{{ t('order_no_location') }}</span>
+                    </div>
+                    <input type="hidden" name="address" id="addressInput">
+                    <input type="hidden" name="lat" id="latInput">
+                    <input type="hidden" name="lng" id="lngInput">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">{{ t('auth_role') }}</label>
+                    <select name="role" id="roleSelect" class="form-select">
+                        <option value="client">🚗 {{ t('auth_role_client') }}</option>
+                        <option value="technician">🛠️ {{ t('auth_role_technician') }}</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">🎁 كود الإحالة (اختياري)</label>
+                    <input type="text" name="referral_code" class="form-control" placeholder="DR0001ABC" style="text-transform:uppercase;" maxlength="10">
+                    <div class="form-text">لو صاحبك بعتلك كود، اكتبه هنا — انت وهو هتاخدوا 50 نقطة</div>
+                </div>
+                <div class="mb-3" id="photoField" style="display:none;">
+                    <label class="form-label">📷 {{ t('auth_photo') }} <small class="text-muted">— {{ t('auth_photo_hint') }}</small></label>
+                    <input type="file" name="photo" id="photoInput" accept="image/*" class="form-control">
+                    <div id="photoPreview" style="display:none; margin-top:10px; text-align:center;">
+                        <img id="previewImg" style="width:90px; height:90px; object-fit:cover; border-radius:50%; border:3px solid var(--talabat); box-shadow:0 4px 12px rgba(0,0,0,.12);">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-lg">{{ t('auth_register_btn') }}</button>
+            </form>
+            <p class="text-center mt-4 mb-0 small" style="font-weight:600">
+                {{ t('auth_have_account') }} <a href="{{ url_for('login') }}" class="text-decoration-none" style="color:var(--talabat)">{{ t('auth_login_btn') }}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){
+    var btn=document.getElementById('useLocBtn');
+    var locText=document.getElementById('locText');
+    var locResult=document.getElementById('locResult');
+    var addrInput=document.getElementById('addressInput');
+    var latInput=document.getElementById('latInput');
+    var lngInput=document.getElementById('lngInput');
+    var govSel=document.getElementById('governorate');
+    var cityInput=document.getElementById('city');
+    var orig=btn.innerHTML;
+    function setLocation(name, lat, lng, gov, city){
+        addrInput.value=name||'';
+        latInput.value=lat||'';
+        lngInput.value=lng||'';
+        locText.textContent=name||'{{ t("order_no_location") }}';
+        if(name) locResult.classList.add('has-value');
+        if(gov){
+            for(var i=0;i<govSel.options.length;i++){ if(govSel.options[i].value===gov){ govSel.selectedIndex=i; break; } }
+        }
+        if(city && !cityInput.value) cityInput.value=city;
+    }
+    function setLoading(b){ btn.disabled=b; btn.innerHTML=b?'⏳ {{ t("geo_loading") }}':orig; }
+    var enToAr={"Cairo":"القاهرة","Giza":"الجيزة","Alexandria":"الإسكندرية","Dakahlia":"الدقهلية","Red Sea":"البحر الأحمر","Beheira":"البحيرة","Faiyum":"الفيوم","Gharbia":"الغربية","Ismailia":"الإسماعيلية","Monufia":"المنوفية","Minya":"المنيا","Qalyubia":"القليوبية","Qalyubiya":"القليوبية","New Valley":"الوادي الجديد","Suez":"السويس","Aswan":"أسوان","Asyut":"أسيوط","Beni Suef":"بني سويف","Port Said":"بورسعيد","Damietta":"دمياط","Sharqia":"الشرقية","South Sinai":"جنوب سيناء","Kafr El Sheikh":"كفر الشيخ","Matrouh":"مطروح","Matruh":"مطروح","Luxor":"الأقصر","Qena":"قنا","North Sinai":"شمال سيناء","Sohag":"سوهاج","Cairo Governorate":"القاهرة","Giza Governorate":"الجيزة"};
+    function mapGov(gov){
+        if(!gov) return '';
+        gov=gov.trim();
+        if(enToAr[gov]) return enToAr[gov];
+        for(var k in enToAr){ if(gov.toLowerCase().indexOf(k.toLowerCase())!==-1) return enToAr[k]; }
+        return gov;
+    }
+    function reverse(lat, lng){
+        fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+lat+'&lon='+lng+'&accept-language=ar')
+            .then(r=>r.json()).then(d=>{
+                var addr=d.address||{};
+                var govRaw=addr.state||addr.county||addr.region||''; var city=addr.city||addr.town||addr.village||addr.county||'';
+                var gov=mapGov(govRaw);
+                var egGov=['القاهرة','الجيزة','الإسكندرية','الدقهلية','البحر الأحمر','البحيرة','الفيوم','الغربية','الإسماعيلية','المنوفية','المنيا','القليوبية','الوادي الجديد','السويس','أسوان','أسيوط','بني سويف','بورسعيد','دمياط','الشرقية','جنوب سيناء','كفر الشيخ','مطروح','الأقصر','قنا','شمال سيناء','سوهاج'];
+                var matched=gov;
+                if(egGov.indexOf(gov)===-1){
+                    for(var i=0;i<egGov.length;i++){ if(d.display_name && d.display_name.indexOf(egGov[i])!==-1){ matched=egGov[i]; break; } }
+                }
+                if(egGov.indexOf(matched)===-1) matched='';
+                setLocation(d.display_name|| (lat.toFixed(5)+','+lng.toFixed(5)), lat, lng, matched, city);
+                if(matched) locText.textContent += ' — لو المحافظة غلط غيّرها من القائمة ↑';
+                setLoading(false);
+            }).catch(()=>{ setLocation(lat.toFixed(5)+','+lng.toFixed(5), lat, lng); setLoading(false); });
+    }
+    function fetchByIP(){
+        fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
+            if(d && d.latitude && d.longitude){
+                var govIp=mapGov(d.region||'');
+                // ipapi غالباً غلط على http — ننبه المستخدم
+                reverse(d.latitude, d.longitude);
+                setTimeout(function(){
+                    if(govIp && govSel.value !== govIp){
+                        // لا نفرض، نترك المستخدم يصحح
+                    }
+                }, 800);
+            }
+            else if(d && d.city){ setLocation([d.city,d.region,d.country_name].filter(Boolean).join(', '), d.latitude, d.longitude, '', d.city); setLoading(false); }
+            else { setLoading(false); alert('{{ t("geo_fail") }}'); }
+        }).catch(()=>{ setLoading(false); alert('{{ t("geo_fail") }}'); });
+    }
+    btn.addEventListener('click', function(){
+        setLoading(true);
+        if(!window.isSecureContext){ fetchByIP(); return; }
+        if(!navigator.geolocation){ fetchByIP(); return; }
+        navigator.geolocation.getCurrentPosition(p=>reverse(p.coords.latitude,p.coords.longitude), ()=>fetchByIP(), {enableHighAccuracy:true, timeout:8000});
+    });
+    // إظهار حقل الصورة للفني فقط
+    var roleSel=document.getElementById('roleSelect');
+    var photoField=document.getElementById('photoField');
+    function togglePhoto(){ photoField.style.display = (roleSel.value==='technician') ? 'block' : 'none'; }
+    roleSel.addEventListener('change', togglePhoto);
+    togglePhoto();
+    document.getElementById('regForm').addEventListener('submit', function(e){
+        if(!govSel.value){ e.preventDefault(); alert('{{ t("auth_location_required") }}'); govSel.focus(); }
+    });
+    // photo preview
+    var photoInput=document.getElementById('photoInput');
+    if(photoInput){
+        photoInput.addEventListener('change', function(e){
+            var file=e.target.files[0];
+            if(file){
+                var url=URL.createObjectURL(file);
+                document.getElementById('previewImg').src=url;
+                document.getElementById('photoPreview').style.display='block';
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

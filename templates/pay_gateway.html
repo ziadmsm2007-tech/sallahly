@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ t('gateway_title') }} - صلحلي{% endblock %}
+{% block extra_css %}
+<style>
+.gw-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; overflow:hidden; max-width:520px; margin:0 auto; }
+.gw-head { background: linear-gradient(135deg, #ff5a00, #ff7a33); color:#fff; padding:1.5rem; text-align:center; }
+.gw-body { padding:1.5rem; }
+.card-row { display:flex; gap:.75rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="gw-card fade-up">
+    <div class="gw-head">
+        <div style="font-size:1.6rem;">🔒 {{ t('gateway_title') }}</div>
+        <div style="opacity:.9; font-size:.9rem;">{{ t('gateway_sub') }}</div>
+    </div>
+    <div class="gw-body">
+        <div class="d-flex justify-content-between align-items-center mb-3 p-3" style="background:#fff7ed; border-radius:12px; border:1px solid #ffcc99;">
+            <div>
+                <div class="small text-muted">{{ order.service_name }} — #{{ order.id }}</div>
+                <div class="fw-bold" style="color:#212121;">🚗 {{ order.car_make or '' }} {{ order.car_model or '' }}</div>
+            </div>
+            <div class="text-end">
+                <div class="small text-muted">{{ t('th_price') }}</div>
+                <div class="fw-bold" style="color:var(--talabat); font-size:1.3rem;">{{ t('currency') }} {{ order.service_price }}</div>
+                {% if order.discount %}<div class="small text-success">-{{ order.discount }} ({{ order.coupon_code }})</div>{% endif %}
+            </div>
+        </div>
+        <div class="alert alert-success small mb-3" style="border-left:4px solid #059669; background:#ecfdf5;">
+            🔒 <strong>دفع آمن 100%</strong> — الفلوس تتحجز في إسكرو صلحلي ولا تصل للفني إلا بعد تأكيدك بـ OTP — محدش يقدر ينصب
+        </div>
+        <div class="alert alert-info small mb-3" style="border-left:4px solid var(--talabat); background:#fff7ed;">
+            {% if order.payment_method == 'Secure' %}
+                🔒 ستدفع <strong>{{ order.service_price }} ج.م</strong> عبر بوابة صلحلي الآمنة (Paymob 3D Secure) — الفلوس محجوزة حتى تأكيد التسليم
+            {% elif order.payment_method == 'Cash' %}
+                💵 ستدفع <strong>{{ order.service_price }} ج.م</strong> كاش للفني عند التسليم — مع كود تأكيد لمنع النصب
+            {% else %}
+                💳 ستدفع <strong>{{ order.service_price }} ج.م</strong> عبر {{ order.payment_method }}
+            {% endif %}
+        </div>
+        <form method="POST">
+            {% if order.payment_method == 'Secure' %}
+            <div class="p-3 mb-3" style="background:#f0f9ff; border:1px solid #bfdbfe; border-radius:12px;">
+                <div class="fw-bold mb-2">🔒 بوابة صلحلي الآمنة — Paymob 3D Secure</div>
+                <div class="small text-muted mb-3">اختر وسيلتك داخل البوابة الآمنة: فيزا/ماستر/ميزة/محفظة/إنستاباي — كلها محمية بـ 3D Secure</div>
+                <div class="mb-3">
+                    <label class="form-label">💳 رقم الكارت (للاختبار: 4111...)</label>
+                    <input type="text" name="card_number" class="form-control" placeholder="4111 1111 1111 1111" required maxlength="19" pattern="[0-9 ]{13,19}" inputmode="numeric">
+                </div>
+                <div class="card-row mb-3">
+                    <div style="flex:1;">
+                        <label class="form-label">{{ t('card_expiry') }}</label>
+                        <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required maxlength="5" pattern="[0-9/]{5}">
+                    </div>
+                    <div style="flex:1;">
+                        <label class="form-label">{{ t('card_cvv') }}</label>
+                        <input type="text" name="cvv" class="form-control" placeholder="123" required maxlength="4" pattern="[0-9]{3,4}" inputmode="numeric">
+                    </div>
+                </div>
+                <div class="alert alert-warning small">🔐 سيتم حجز المبلغ وإرسال OTP لتأكيد التسليم — الفلوس لا تصل للفني إلا بعد إدخال OTP</div>
+            </div>
+            {% elif order.payment_method == 'Cash' %}
+            <div class="p-3 mb-3" style="background:#fef3c7; border:1px solid #fde68a; border-radius:12px;">
+                <div class="fw-bold mb-2">💵 كاش عند التسليم — مع كود تأكيد</div>
+                <div class="small text-muted">ستعطي الفلوس والكود للفني فقط بعد التأكد من إتمام الخدمة</div>
+            </div>
+            {% else %}
+            <div class="mb-3">
+                <label class="form-label">{{ t('card_number') }}</label>
+                <input type="text" name="card_number" class="form-control" placeholder="4111 1111 1111 1111" required>
+            </div>
+            {% endif %}
+            <div class="small text-muted mb-3">🔒 {{ t('escrow_note', vodafone=owner_vodafone, instapay=owner_instapay) }}</div>
+            <button class="btn btn-primary w-100 btn-lg">✅ {{ t('pay_now') }} — {{ t('currency') }} {{ order.service_price }} {% if order.payment_method != 'Cash' %}عبر {{ order.payment_method }}{% endif %}</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('track_order', order_id=order.id) }}" class="small text-muted">← رجوع</a>
+        </div>
+        <div class="small text-muted text-center mt-3" style="opacity:.6;">Paymob • Fawry • Visa • Mastercard — محاكاة آمنة</div>
+    </div>
+</div>
+{% endblock %}

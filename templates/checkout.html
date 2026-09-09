@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Checkout - صلحلي{% endblock %}
+{% block extra_css %}
+<style>
+.check-section { background:#fff; border:1px solid #eeeeee; border-radius:16px; padding:1.2rem; margin-bottom:1rem; box-shadow:0 1px 6px rgba(0,0,0,.04); }
+.check-section h6 { font-weight:900; color:#212121; margin-bottom:.9rem; display:flex; align-items:center; gap:.5rem; font-size:.98rem; }
+.pay-option { border:1.5px solid #e5e7eb; border-radius:14px; padding:.9rem; cursor:pointer; transition: all .18s; background:#fff; text-align:center; }
+.pay-option.selected { border-color: var(--talabat); background:#fff7ed; box-shadow:0 2px 10px rgba(255,90,0,.12); }
+.pay-option input { display:none; }
+.tala-summary { background:#fff; border:1.5px solid #ff5a00; border-radius:16px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.06); position:sticky; top:90px; }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <a href="{{ url_for('cart_page') }}" class="btn btn-sm" style="background:#fff; border:1px solid #e0e0e0; border-radius:50%; width:36px; height:36px; display:grid; place-items:center;">←</a>
+    <h5 class="fw-bold mb-0" style="color:#212121;">Checkout</h5>
+    <span style="background:#fff0e6; border:1px solid #ffcc99; color:#ff5a00; border-radius:50rem; padding:.2rem .6rem; font-weight:800; font-size:.78rem;">{{ services|length }} items • Talabat</span>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="row g-3">
+    <div class="col-lg-8">
+        <!-- Address — Talabat -->
+        <div class="check-section">
+            <h6>📍 عنوان الخدمة</h6>
+            <div class="p-2 mb-2 d-flex align-items-center gap-2" style="background:#fff7ed; border:1px solid #ffcc99; border-radius:12px;">
+                <span style="width:32px; height:32px; display:grid; place-items:center; background:#ff5a00; color:#fff; border-radius:50%; font-size:.9rem;">📍</span>
+                <small style="font-weight:700; color:#212121;">Deliver to your location — like Talabat</small>
+                <span style="margin-inline-start:auto; background:#fff; border:1px solid #ffcc99; border-radius:50rem; padding:.2rem .6rem; font-weight:700; font-size:.72rem; color:#ff5a00;">30 min</span>
+            </div>
+            <button type="button" id="useLocBtn2" class="btn btn-sm mb-2 w-100" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800;">📍 Use my current location</button>
+            <input type="text" name="location" id="locationInput2" class="form-control mb-2" placeholder="التجمع الخامس، القاهرة..." required style="border-radius:12px; border:1.5px solid #e0e0e0;">
+            <input type="hidden" name="lat" id="lat2">
+            <input type="hidden" name="lng" id="lng2">
+            <div class="row g-2">
+                <div class="col-6"><input type="text" name="name" class="form-control" value="{{ current_user.name }}" placeholder="Full name" required style="border-radius:12px;"></div>
+                <div class="col-6"><input type="tel" name="phone" class="form-control" placeholder="01000000000" required dir="ltr" style="border-radius:12px;"></div>
+            </div>
+            <small class="text-muted mt-2 d-block" style="font-size:.76rem;">Tip: tap 📍 to auto-fill with GPS — like Talabat</small>
+        </div>
+
+        <!-- Car — Talabat -->
+        <div class="check-section">
+            <h6>🚗 Your vehicle</h6>
+            <div class="input-icon-wrap mb-2">
+                <span class="lead">🔎</span>
+                <input type="text" id="carSearch2" class="form-control" placeholder="Search car brand..." style="border-radius:50rem;">
+            </div>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <select name="car_make" id="carMake2" class="form-select" required style="border-radius:12px;">
+                        <option value="">Brand</option>
+                        {% for make in car_makes_list %}
+                        <option value="{{ make }}">{{ make }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name="car_model" id="carModel2" class="form-select" required style="border-radius:12px;">
+                        <option value="">Model</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" name="car_year" class="form-control" placeholder="Year" min="1980" max="2026" style="border-radius:12px;">
+                </div>
+            </div>
+            <div id="otherModelWrap2" style="display:none;" class="mt-2">
+                <input type="text" name="other_model" id="otherModelInput2" class="form-control" placeholder="Type model manually" style="border-radius:12px;">
+            </div>
+            <div class="mt-2">
+                <label class="form-label" style="font-weight:700; font-size:.85rem;">📸 Fault photo (optional)</label>
+                <input type="file" name="fault_photo" class="form-control" style="border-radius:12px;">
+            </div>
+        </div>
+
+        <!-- Time -->
+        <div class="check-section">
+            <h6>📅 وقت الخدمة</h6>
+            <div class="d-flex gap-2 mb-2">
+                <label class="btn flex-fill" style="border-radius:50rem; background:#ff5a00; color:#fff; font-weight:800; border:1.5px solid #ff5a00;"><input type="radio" name="when" value="now" checked style="display:none;"> ⚡ ASAP (30 min)</label>
+                <label class="btn flex-fill" style="border-radius:50rem; background:#fff; border:1.5px solid #e0e0e0; color:#424242; font-weight:700;"><input type="radio" name="when" value="later" style="display:none;"> 📅 Schedule</label>
+            </div>
+            <div id="schedWrap2" style="display:none;">
+                <input type="datetime-local" name="scheduled_at" id="schedInput2" class="form-control" style="border-radius:12px;">
+                <div class="form-text">Choose day & time</div>
+            </div>
+        </div>
+
+        <!-- Payment — Talabat -->
+        <div class="check-section">
+            <h6>💳 Payment method</h6>
+            <div class="row g-2">
+                <div class="col-4">
+                    <label class="pay-option w-100" id="boxCash">
+                        <input type="radio" name="payment_method" value="Cash" checked>
+                        <div style="font-size:1.5rem;">💵</div><div class="fw-bold small mt-1">Cash</div><small class="text-muted" style="font-size:.68rem;">on delivery</small>
+                    </label>
+                </div>
+                <div class="col-4">
+                    <label class="pay-option w-100" id="boxCard">
+                        <input type="radio" name="payment_method" value="Secure">
+                        <div style="font-size:1.5rem;">💳</div><div class="fw-bold small mt-1">Card</div><small class="text-muted" style="font-size:.68rem;">3D Secure</small>
+                    </label>
+                </div>
+                <div class="col-4">
+                    <label class="pay-option w-100" id="boxInsta">
+                        <input type="radio" name="payment_method" value="InstaPay">
+                        <div style="font-size:1.5rem;">🏦</div><div class="fw-bold small mt-1">InstaPay</div><small class="text-muted" style="font-size:.68rem;">wallet</small>
+                    </label>
+                </div>
+            </div>
+            <input type="text" name="coupon_code" class="form-control mt-3" placeholder="Promo code (optional)" style="text-transform:uppercase; border-radius:12px; border:1.5px solid #e0e0e0;">
+            <small class="text-muted" style="font-size:.75rem;">Try WELCOME10, ZAYED20</small>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="tala-summary">
+            <div class="p-3 fw-bold d-flex justify-content-between align-items-center" style="border-bottom:1px solid #f5f5f5; color:#212121;">
+                <span>Your order</span>
+                <small class="text-muted" style="font-size:.75rem;">{{ services|length }} items</small>
+            </div>
+            <div class="p-3">
+            {% for s in services %}
+            <div class="d-flex justify-content-between small py-2" style="border-bottom:1px solid #f5f5f5;">
+                <span>{{ s.name }}</span>
+                <span class="small text-muted">🚗 حسب عربيتك</span>
+            </div>
+            {% endfor %}
+                <div class="d-flex justify-content-between py-2 small text-muted">
+                    <span>Subtotal</span><span id="checkoutSubtotal">—</span>
+                </div>
+                <div class="d-flex justify-content-between fw-bold mt-2 pt-2" style="border-top:1px dashed #e0e0e0; font-size:1.05rem;">
+                    <span>Total</span>
+                    <span id="checkoutTotal">—</span>
+                </div>
+                <div class="small text-muted mb-2" id="priceNote" style="font-size:.75rem;">Final price by car tier at confirmation</div>
+                <div class="p-2 mb-3 d-flex align-items-center gap-2" style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px;">
+                    <span style="font-size:1.1rem;">🎉</span>
+                    <small style="font-weight:700; color:#2e7d32; font-size:.78rem;"></small>
+                </div>
+            </div>
+            <div class="p-3" style="background:#fffdf7; border-top:1px solid #f5f5f5;">
+                <button class="btn w-100 btn-lg" style="background:#ff5a00; border-color:#ff5a00; color:#fff; font-weight:900; border-radius:14px; box-shadow:0 6px 16px rgba(255,90,0,.22);">✅ Place order — <span id="totalPriceInline">اختر عربيتك</span></button>
+                <small class="text-muted d-block text-center mt-2" style="font-size:.75rem;">By placing order you agree to Talabat-style terms</small>
+            </div>
+        </div>
+        <div class="mt-3 p-3" style="background:#fff; border:1px solid #eeeeee; border-radius:14px;">
+            <small class="text-muted" style="font-size:.82rem; line-height:1.5;">
+                🔒 Secure checkout • Cash or escrow<br>
+                🛡️ 80% to technician after OTP<br>
+                📍 Track live on map after assign
+            </small>
+        </div>
+    </div>
+</form>
+
+<script>
+var CAR_DATA = {{ car_makes | tojson }};
+var TIER_MULT = {{ tier_mult|default({}) | tojson }};
+var carSearch=document.getElementById('carSearch2'), carMake=document.getElementById('carMake2'), carModel=document.getElementById('carModel2');
+var totalInline=document.getElementById('totalPriceInline'), checkoutTotal=document.getElementById('checkoutTotal');
+var baseTotal = {{ services|sum(attribute='base_price') }};
+var deliveryFee = 0, serviceFee = 0;
+if(carSearch && carMake){
+    var allMakes = Array.from(carMake.options).slice(1);
+    carSearch.addEventListener('input', function(){
+        var q=(carSearch.value||'').toLowerCase();
+        carMake.innerHTML='<option value="">Brand</option>';
+        allMakes.forEach(o=>{
+            if(!q || o.text.toLowerCase().includes(q)){
+                carMake.appendChild(o.cloneNode(true));
+            }
+        });
+        if(carMake.options.length===2){ carMake.selectedIndex=1; carMake.dispatchEvent(new Event('change')); }
+    });
+    carMake.addEventListener('change', function(){
+        var make=carMake.value;
+        carModel.innerHTML='<option value="">Model</option>';
+        (CAR_DATA[make]||[]).forEach(m=>{
+            var o=document.createElement('option'); o.value=m; o.textContent=m; carModel.appendChild(o);
+        });
+        document.getElementById('otherModelWrap2').style.display = (make==='Other')?'':'none';
+        updateTotal();
+    });
+    carModel.addEventListener('change', function(){
+        document.getElementById('otherModelWrap2').style.display = (carModel.value==='Other model')?'':'none';
+        updateTotal();
+    });
+    document.getElementById('otherModelInput2')?.addEventListener('input', updateTotal);
+}
+function updateTotal(){
+    var make=carMake.value;
+    var other=document.getElementById('otherModelInput2')?.value.trim();
+    var model=carModel.value;
+    if(make==='Other' && other) model=other;
+    else if(model==='Other model' && other) model=other;
+    var placeBtn = document.querySelector('button[style*="ff9900"]');
+    if(!make || !model){
+        if(totalInline) totalInline.textContent='—';
+        if(checkoutTotal) checkoutTotal.textContent='—';
+        var note=document.getElementById('priceNote');
+        if(note) note.textContent='اختر عربيتك لمعرفة السعر';
+        if(placeBtn){ placeBtn.style.opacity='0.5'; placeBtn.style.pointerEvents='none'; }
+        return;
+    }
+    var tier = ({{ car_tier_map|tojson }}[make] || 'economy');
+    var mult = TIER_MULT[tier] || 1.0;
+    var adjusted = Math.round(baseTotal * 2.2 * mult / 25)*25;
+    var total = adjusted + deliveryFee + serviceFee;
+    if(totalInline) totalInline.textContent = 'EGP ' + total;
+    if(checkoutTotal) checkoutTotal.textContent = 'EGP ' + total;
+    var note=document.getElementById('priceNote');
+    if(note) note.textContent = 'السعر لعربيتك ' + make + ' ' + model;
+    if(placeBtn){ placeBtn.style.opacity='1'; placeBtn.style.pointerEvents='auto'; }
+}
+if(carMake) carMake.addEventListener('change', updateTotal);
+updateTotal();
+// location
+var locBtn=document.getElementById('useLocBtn2');
+if(locBtn){
+    locBtn.addEventListener('click', function(){
+        locBtn.disabled=true; locBtn.textContent='⏳ Locating...';
+        if(!navigator.geolocation){
+            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
+                document.getElementById('locationInput2').value=(d.city||'')+', '+(d.region||'');
+                document.getElementById('lat2').value=d.latitude||'';
+                document.getElementById('lng2').value=d.longitude||'';
+                locBtn.textContent='✅ Done'; locBtn.disabled=false;
+            });
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(p=>{
+            fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+p.coords.latitude+'&lon='+p.coords.longitude+'&accept-language=ar')
+                .then(r=>r.json()).then(d=>{
+                    document.getElementById('locationInput2').value=d.display_name||'';
+                    document.getElementById('lat2').value=p.coords.latitude;
+                    document.getElementById('lng2').value=p.coords.longitude;
+                    locBtn.textContent='✅ Done'; locBtn.disabled=false;
+                });
+        }, err=>{
+            fetch('https://ipapi.co/json/').then(r=>r.json()).then(d=>{
+                document.getElementById('locationInput2').value=(d.city||'')+', '+(d.region||'');
+                document.getElementById('lat2').value=d.latitude||'';
+                document.getElementById('lng2').value=d.longitude||'';
+                locBtn.textContent='✅ Done'; locBtn.disabled=false;
+            });
+        }, {enableHighAccuracy:true, timeout:10000});
+    });
+}
+// when
+var whenRadios=document.querySelectorAll('input[name="when"]'), wrap=document.getElementById('schedWrap2');
+whenRadios.forEach(r=>r.addEventListener('change', ()=>{
+    const isLater = document.querySelector('input[name="when"]:checked').value==='later';
+    wrap.style.display = isLater?'':'none';
+    document.getElementById('schedInput2').required = isLater;
+    // update label colors
+    whenRadios.forEach(x=>{
+      const lbl=x.closest('label');
+      if(x.checked){ lbl.style.background='#ff5a00'; lbl.style.color='#fff'; lbl.style.borderColor='#ff5a00'; }
+      else { lbl.style.background='#fff'; lbl.style.color='#424242'; lbl.style.borderColor='#e0e0e0'; }
+    });
+}));
+// pay boxes
+document.querySelectorAll('.pay-option').forEach(box=>{
+    box.addEventListener('click', function(){
+        document.querySelectorAll('.pay-option').forEach(b=>b.classList.remove('selected'));
+        box.classList.add('selected');
+        box.querySelector('input').checked=true;
+    });
+});
+if(document.getElementById('boxCash')) document.getElementById('boxCash').classList.add('selected');
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}إدارة الخدمات - صلحلي{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h3>🛠️ إدارة الخدمات</h3>
+    <p>أضف/احذف خدمات — التغيير يظهر فوراً</p>
+</div>
+
+<div class="panel p-4 mb-4">
+    <h6 class="fw-bold">➕ إضافة خدمة جديدة</h6>
+    <form method="POST" class="row g-3">
+        <input type="hidden" name="action" value="add">
+        <div class="col-md-3">
+            <label class="form-label">التصنيف</label>
+            <select name="category" class="form-select" required>
+                {% for cat in categories %}
+                <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+                <option value="New Category">تصنيف جديد...</option>
+            </select>
+            <input type="text" name="new_category" class="form-control mt-2" placeholder="اسم تصنيف جديد (لو اخترت جديد)" style="display:none;" id="newCatInput">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">اسم الخدمة</label>
+            <input type="text" name="name" class="form-control" required placeholder="مثال: غسيل ماتور">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">السعر الأساسي</label>
+            <input type="number" name="base_price" class="form-control" required placeholder="500">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">الوصف</label>
+            <input type="text" name="description" class="form-control" placeholder="وصف مختصر">
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary">➕ إضافة</button>
+        </div>
+    </form>
+</div>
+
+<div class="panel">
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="tbl-modern">
+                <thead><tr><th>#</th><th>التصنيف</th><th>الخدمة</th><th>السعر</th><th></th></tr></thead>
+                <tbody>
+                    {% for s in services %}
+                    <tr>
+                        <td>{{ s.id }}</td>
+                        <td><span class="chip">{{ s.category }}</span></td>
+                        <td><strong>{{ s.name }}</strong><br><small class="text-muted">{{ s.description }}</small></td>
+                        <td>{{ s.base_price }} ج.م</td>
+                        <td>
+                            <form method="POST" onsubmit="return confirm('حذف؟')">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="service_id" value="{{ s.id }}">
+                                <button class="btn btn-outline-danger btn-sm">🗑️ حذف</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+document.querySelector('select[name="category"]').addEventListener('change', function(){
+    document.getElementById('newCatInput').style.display = this.value==='New Category' ? '' : 'none';
+    if(this.value==='New Category') this.value = document.getElementById('newCatInput').value || 'General';
+});
+</script>
+{% endblock %}

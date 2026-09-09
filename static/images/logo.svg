@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="صلحلي logo">
+  <defs>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5a00"/>
+      <stop offset="100%" stop-color="#e65100"/>
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="12" fill="url(#g2)"/>
+  <!-- wrench + house -->
+  <path d="M12 18 L20 10 L28 18 L28 28 L12 28 Z" fill="white" opacity="0.96"/>
+  <path d="M15 28 L15 22 L18 22 L18 28 Z" fill="#ff5a00" opacity="0.9"/>
+  <path d="M22 28 L22 22 L25 22 L25 28 Z" fill="#ff5a00" opacity="0.9"/>
+  <!-- wrench inside -->
+  <g transform="translate(20,18) rotate(-45)">
+    <rect x="-1.5" y="-8" width="3" height="16" rx="1.5" fill="#ff5a00"/>
+    <circle cx="0" cy="-10" r="3.5" fill="none" stroke="#ff5a00" stroke-width="1.6"/>
+    <path d="M-3 -12 L3 -8 L0 -6 Z" fill="#ff5a00"/>
+  </g>
+  <circle cx="20" cy="14" r="1.2" fill="#1a1a1a" opacity="0.85"/>
+</svg>

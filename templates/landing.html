@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}صلحلي - Car Service Booking{% endblock %}
+{% block content %}
+
+<!-- Talabat-style hero banner -->
+<div class="hero fade-up" style="padding:2rem 1.6rem; border-radius:18px;">
+    <div class="row align-items-center g-3">
+        <div class="col-lg-7">
+            <span class="hero-badge">🏆 {{ t('hero_badge') }} • </span>
+            <h1 style="font-size:clamp(1.8rem,4vw,2.8rem); line-height:1.15;">{{ t('hero_title') }}<br><span style="color:#fff; background:rgba(0,0,0,.18); padding:.1rem .6rem; border-radius:8px; font-size:.7em;">Talabat for Services</span></h1>
+            <p class="lead mt-2 mb-3" style="max-width:32rem; font-size:1.05rem; opacity:.92;">{{ t('hero_subtitle') }} — {{ t('brand_tagline') }}</p>
+            <div class="d-flex gap-2 flex-wrap">
+                {% if current_user and current_user.role == 'client' %}
+                    <a href="{{ url_for('customer_services') }}" class="btn btn-light btn-lg" style="border-radius:50rem; color:#ff5a00; font-weight:900;">{{ t('hero_btn_browse') }} →</a>
+                    <a href="{{ url_for('customer_dashboard') }}" class="btn btn-outline-light btn-lg" style="border-radius:50rem; border-width:2px;">{{ t('nav_dashboard') }}</a>
+                {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg" style="border-radius:50rem; color:#ff5a00; font-weight:900;">{{ t('hero_btn_get_started') }}</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg" style="border-radius:50rem; border-width:2px;">{{ t('hero_btn_login') }}</a>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-3 mt-4 flex-wrap" style="opacity:.95;">
+                <span class="d-inline-flex align-items-center gap-1" style="background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); padding:.35rem .75rem; border-radius:50rem; font-weight:800; font-size:.82rem;">⭐ 4.8 (3.9k reviews)</span>
+                <span class="d-inline-flex align-items-center gap-1" style="background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); padding:.35rem .75rem; border-radius:50rem; font-weight:800; font-size:.82rem;">⏱ 30 min avg</span>
+                <span class="d-inline-flex align-items-center gap-1" style="background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); padding:.35rem .75rem; border-radius:50rem; font-weight:800; font-size:.82rem;">🛡️ Warranty</span>
+            </div>
+        </div>
+        <div class="col-lg-5 d-none d-lg-block">
+            <div class="hero-art" style="position:relative;">
+                <div class="hero-gear">⚙️</div>
+                <div style="position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); background:#fff; color:#ff5a00; border-radius:50rem; padding:.4rem .9rem; font-weight:900; font-size:.82rem; box-shadow:0 6px 14px rgba(0,0,0,.15); white-space:nowrap;">🚗 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Talabat category tiles — exact like Talabat grid -->
+<div class="mt-4" id="categories">
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+        <div>
+            <h2 class="section-title mb-1" style="font-size:1.35rem;">{{ t('cats_title') }}</h2>
+            <p class="section-sub mb-0" style="font-size:.9rem;">{{ t('cats_subtitle') }}</p>
+        </div>
+        {% if current_user and current_user.role == 'client' %}
+            <a href="{{ url_for('customer_services') }}" class="btn btn-sm" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800;">{{ t('hero_btn_browse') }} →</a>
+        {% endif %}
+    </div>
+    <div class="row g-2 g-md-3">
+        {% for cat, services in landing_categories.items() %}
+        <div class="col-4 col-md-2 col-lg-2 fade-up">
+            <a class="s-card cat-card cat-link text-decoration-none" href="{{ url_for('customer_services', cat=cat) }}" style="padding:1rem .6rem;">
+                <span class="cat-icon" style="font-size:2rem;">
+                    {% if cat in ['Engine', 'المحرك'] %}🔧{% elif cat in ['Brakes', 'الفرامل'] %}🛞{% elif cat in ['Electrical', 'الكهرباء'] %}⚡{% elif cat in ['Suspension', 'التعليق'] %}🔩{% elif cat in ['Cooling', 'التبريد'] %}❄️{% elif cat in ['Tires', 'الإطارات'] %}🚗{% elif cat in ['Transmission', 'ناقل الحركة'] %}⚙️{% elif cat in ['Exhaust', 'العادم'] %}💨{% elif cat in ['Air Conditioning', 'التكييف'] %}❄️{% elif cat in ['Detailing', 'التلميع والعناية'] %}✨{% elif cat in ['Roadside Assistance', 'المساعدة على الطريق'] %}🚨{% elif cat in ['Winch', 'ونش'] %}🚨{% elif cat in ['Electrician', 'كهربائي'] %}💡{% elif cat in ['Plumbing', 'سباكة'] %}🔧{% elif cat in ['Motorcycles', 'مكن'] %}🏍️{% else %}🔧{% endif %}
+                </span>
+                <h6 style="font-size:.82rem; line-height:1.25; margin:.35rem 0 .15rem;">{{ cat }}</h6>
+                <small style="font-size:.72rem;">{{ services | length }} services</small>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Talabat promo strip -->
+<div class="mt-4 p-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#fff; border:1.5px solid #ffe0cc; border-radius:16px;">
+    <div class="d-flex align-items-center gap-3">
+        <span style="width:44px; height:44px; display:grid; place-items:center; background:#fff0e6; border-radius:12px; font-size:1.4rem;">🎁</span>
+        <div>
+            <div class="fw-bold" style="color:#212121; font-size:.95rem;"></div>
+            <small class="text-muted">Add 2 services to basket — Service on us</small>
+        </div>
+    </div>
+    <a href="{{ url_for('customer_services') }}" class="btn btn-sm" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800; white-space:nowrap;">Order now</a>
+</div>
+
+<!-- Features — Talabat benefits row -->
+<div class="mt-4">
+    <div class="row g-3">
+        <div class="col-6 col-md-3"><div class="s-card p-3 text-center h-100"><div style="font-size:1.6rem;">🛠️</div><h6 class="fw-bold mt-2 mb-1" style="font-size:.88rem; color:#212121;">{{ t('feat_title_expert') }}</h6><p class="small text-muted mb-0" style="font-size:.78rem; line-height:1.4;">{{ t('feat_title_expert_d') }}</p></div></div>
+        <div class="col-6 col-md-3"><div class="s-card p-3 text-center h-100"><div style="font-size:1.6rem;">📍</div><h6 class="fw-bold mt-2 mb-1" style="font-size:.88rem; color:#212121;">{{ t('feat_title_track') }}</h6><p class="small text-muted mb-0" style="font-size:.78rem; line-height:1.4;">{{ t('feat_title_track_d') }}</p></div></div>
+        <div class="col-6 col-md-3"><div class="s-card p-3 text-center h-100"><div style="font-size:1.6rem;">💳</div><h6 class="fw-bold mt-2 mb-1" style="font-size:.88rem; color:#212121;">{{ t('feat_title_payment') }}</h6><p class="small text-muted mb-0" style="font-size:.78rem; line-height:1.4;">{{ t('feat_title_payment_d') }}</p></div></div>
+        <div class="col-6 col-md-3"><div class="s-card p-3 text-center h-100"><div style="font-size:1.6rem;">⚡</div><h6 class="fw-bold mt-2 mb-1" style="font-size:.88rem; color:#212121;">{{ t('feat_title_fast') }}</h6><p class="small text-muted mb-0" style="font-size:.78rem; line-height:1.4;">{{ t('feat_title_fast_d') }}</p></div></div>
+    </div>
+</div>
+
+<!-- How it works — Talabat steps -->
+<div class="mt-4 p-3" style="background:#fff; border:1px solid #eeeeee; border-radius:16px;">
+    <h6 class="fw-bold text-center mb-3" style="color:#212121;">{{ t('how_title') }}</h6>
+    <div class="row g-3 text-center">
+        <div class="col-4">
+            <div style="width:48px; height:48px; margin:0 auto; display:grid; place-items:center; background:#fff0e6; border-radius:14px; font-size:1.4rem; border:1px solid #ffcc99;">1️⃣</div>
+            <div class="fw-bold mt-2" style="font-size:.85rem; color:#212121;">{{ t('how_step1_title') }}</div>
+            <small class="text-muted" style="font-size:.75rem;">{{ t('how_step1_desc') }}</small>
+        </div>
+        <div class="col-4">
+            <div style="width:48px; height:48px; margin:0 auto; display:grid; place-items:center; background:#fff0e6; border-radius:14px; font-size:1.4rem; border:1px solid #ffcc99;">2️⃣</div>
+            <div class="fw-bold mt-2" style="font-size:.85rem; color:#212121;">{{ t('how_step2_title') }}</div>
+            <small class="text-muted" style="font-size:.75rem;">{{ t('how_step2_desc') }}</small>
+        </div>
+        <div class="col-4">
+            <div style="width:48px; height:48px; margin:0 auto; display:grid; place-items:center; background:#fff0e6; border-radius:14px; font-size:1.4rem; border:1px solid #ffcc99;">3️⃣</div>
+            <div class="fw-bold mt-2" style="font-size:.85rem; color:#212121;">{{ t('how_step3_title') }}</div>
+            <small class="text-muted" style="font-size:.75rem;">{{ t('how_step3_desc') }}</small>
+        </div>
+    </div>
+</div>
+
+{% if testimonials %}
+<div class="mt-4">
+    <h6 class="fw-bold mb-3" style="color:#212121;">⭐ Customer reviews</h6>
+    <div class="row g-3">
+        {% for t in testimonials %}
+        <div class="col-md-4">
+            <div class="s-card p-3 h-100">
+                <div class="d-flex gap-1 mb-2" style="color:#ff5a00; font-size:.75rem;">
+                    {% for i in range(t.rating or 5) %}⭐{% endfor %} <small class="text-muted ms-1">{{ t.rating or 5 }}.0</small>
+                </div>
+                <p class="small mb-3" style="color:#424242; font-size:.85rem; line-height:1.5;">"{{ t.review or t.service_name }}"</p>
+                <div class="d-flex gap-2 align-items-center">
+                    {% if t.photo %}
+                        <img src="{{ url_for('static', filename=t.photo) }}" style="width:34px; height:34px; border-radius:50%; object-fit:cover;">
+                    {% else %}
+                        <div style="width:34px; height:34px; border-radius:50%; background:#fff3e0; display:grid; place-items:center; font-size:.9rem;">👤</div>
+                    {% endif %}
+                    <div>
+                        <div class="fw-bold" style="font-size:.82rem; color:#212121;">{{ t.name }}</div>
+                        <div class="small text-muted" style="font-size:.72rem;">{{ t.service_name }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- CTA -->
+<div class="hero mt-4 text-center" style="padding:2rem 1.2rem;">
+    <h2 class="fw-bold" style="font-size:clamp(1.4rem,3vw,1.9rem)">{{ t('cta_title') }}</h2>
+    <p class="mx-auto" style="max-width:30rem; opacity:.9;">{{ t('cta_subtitle') }}</p>
+    {% if not current_user %}
+        <a href="{{ url_for('register') }}" class="btn btn-light btn-lg" style="border-radius:50rem; color:#ff5a00; font-weight:900;">{{ t('cta_btn') }}</a>
+    {% else %}
+        <a href="{{ url_for('customer_dashboard') if current_user.role == 'client' else url_for('landing') }}" class="btn btn-light btn-lg" style="border-radius:50rem; color:#ff5a00; font-weight:900;">{{ t('nav_dashboard') }}</a>
+    {% endif %}
+</div>
+
+{% endblock %}

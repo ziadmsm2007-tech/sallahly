@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }} - صلحلي{% endblock %}
+{% block extra_css %}
+<style>
+.svc-hero {
+    border-radius: 20px;
+    padding: 1.6rem;
+    border: 1px solid {{ visual.border }};
+    background: {{ visual.bg }};
+    position: relative;
+    overflow: hidden;
+}
+.svc-hero::after {
+    content: "";
+    position: absolute;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,.7), transparent 65%);
+    top: -80px; inset-inline-end: -60px;
+    pointer-events: none;
+}
+.svc-cat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: #fff;
+    border: 1px solid {{ visual.border }};
+    color: {{ visual.accent }};
+    font-weight: 800;
+    font-size: .78rem;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    padding: .28rem .7rem;
+    border-radius: 50rem;
+}
+.svc-visual-card {
+    background: #fff;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    border: 1px solid rgba(0,0,0,.04);
+    overflow: hidden;
+}
+.svc-visual-img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    display: block;
+}
+.svc-visual-emoji {
+    font-size: 4.5rem;
+    line-height: 1;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.08));
+}
+.svc-visual-fallback {
+    height: 210px;
+    display: grid;
+    place-items: center;
+    font-size: 4.5rem;
+    background: {{ visual.bg }};
+}
+.svc-meta { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .7rem; }
+.svc-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: #fff;
+    border: 1px solid {{ visual.border }};
+    padding: .28rem .6rem;
+    border-radius: 50rem;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #424242;
+}
+.svc-check { display: flex; gap: .6rem; align-items: flex-start; margin-bottom: .7rem; font-size: .92rem; }
+.svc-check .tick {
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-size: .85rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.svc-price-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: #fff;
+    border: 1px solid {{ visual.border }};
+    color: {{ visual.accent }};
+    font-weight: 900;
+    font-size: 1.35rem;
+    padding: .45rem 1rem;
+    border-radius: 14px;
+}
+.related-card {
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 14px;
+    padding: 1rem;
+    text-align: center;
+    transition: all .18s ease;
+    height: 100%;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+}
+.related-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,.08); border-color: #e0e0e0; }
+.related-card .r-emoji { font-size: 2rem; }
+</style>
+{% endblock %}
+{% block content %}
+
+<!-- Hero — شكل الخدمة نفسه -->
+<div class="svc-hero mb-4 fade-up">
+    <div class="row align-items-center g-3" style="position:relative; z-index:1;">
+        <div class="col-lg-7">
+            <div class="svc-cat-badge mb-2">
+                <span>{{ visual.emoji }}</span> {{ cat_name }}
+            </div>
+            <h1 class="fw-bold mb-2" style="color:#212121; font-size: clamp(1.6rem, 3vw, 2.1rem);">{{ service.name }}</h1>
+            <p class="mb-2" style="color:#616161; font-size:1rem;">{{ service.description }}</p>
+            <div class="svc-meta">
+                <span>⭐ {{ t('svc_rating') }}</span>
+                <span>⏱ {{ t('svc_time') }}: {{ t('svc_time_val') }}</span>
+                <span>🛡️ {{ t('svc_warranty') }}</span>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="svc-visual-card">
+                <img src="{{ image_url }}" alt="{{ service.name }}" class="svc-visual-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+                <div class="svc-visual-fallback" style="display:none;">{{ visual.emoji }}</div>
+                <div class="p-3">
+                    <div class="fw-bold" style="color:{{ visual.accent }};">{{ visual.emoji }} {{ cat_name }}</div>
+                    <div class="small text-muted">{{ service.name }}</div>
+                    {% if service.variable_price %}
+                    <div class="st-badge mt-2" style="background:#fef3c7;color:#92400e; border:1px solid #fde68a;">⚡ السعر يحدده الفني بعد المعاينة</div>
+                    {% endif %}
+                    <div class="d-flex gap-2 justify-content-center mt-2 flex-wrap">
+                        <span class="svc-cat-badge" style="font-size:.72rem;">✓ {{ t('svc_certified') }}</span>
+                        <span class="svc-cat-badge" style="font-size:.72rem;">✓ {{ t('svc_genuine') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left -->
+    <div class="col-lg-8">
+        <div class="panel mb-4 fade-up">
+            <div class="panel-head">✅ {{ t('svc_included') }}</div>
+            <div class="panel-body">
+                <div class="svc-check"><span class="tick">✓</span><span>{{ t('svc_included_1') }}</span></div>
+                <div class="svc-check"><span class="tick">✓</span><span>{{ t('svc_included_2') }}</span></div>
+                <div class="svc-check"><span class="tick">✓</span><span>{{ t('svc_included_3') }}</span></div>
+                <div class="svc-check"><span class="tick">✓</span><span>{{ t('svc_included_4') }}</span></div>
+            </div>
+        </div>
+
+        <div class="panel mb-4 fade-up d-1">
+            <div class="panel-head">💎 {{ t('svc_why') }}</div>
+            <div class="panel-body">
+                <div class="svc-check"><span class="tick" style="background:#fff3e0;color:#e65100;">★</span><span>{{ t('svc_why_1') }}</span></div>
+                <div class="svc-check"><span class="tick" style="background:#fff3e0;color:#e65100;">★</span><span>{{ t('svc_why_2') }}</span></div>
+                <div class="svc-check"><span class="tick" style="background:#fff3e0;color:#e65100;">★</span><span>{{ t('svc_why_3') }}</span></div>
+            </div>
+        </div>
+
+        {% if related %}
+        <div class="panel fade-up d-2">
+            <div class="panel-head">🔧 {{ t('svc_related') }}</div>
+            <div class="panel-body">
+                <div class="row g-3">
+                    {% for r in related %}
+                    <div class="col-6 col-md-3">
+                        <a href="{{ url_for('service_details', service_id=r.id) }}" class="related-card">
+                            <div class="r-emoji">{{ visual.emoji }}</div>
+                            <div class="fw-bold small mt-1" style="color:#212121; line-height:1.3;">{{ r.name }}</div>
+                            <div class="small text-muted">🚗 {{ t('order_price_note') }}</div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right sticky CTA — السعر يظهر بعد اختيار العربية -->
+    <div class="col-lg-4">
+        <div class="panel fade-up" style="position: sticky; top: 90px;">
+            <div class="panel-body text-center">
+                <div class="small text-muted mb-3">🚗 {{ t('order_price_note') }}</div>
+                {% if current_user and current_user.role == 'client' %}
+                    <form method="POST" action="{{ url_for('add_to_cart', service_id=service.id) }}" class="mb-2">
+                        <button class="btn btn-primary w-100 btn-lg" style="background:var(--talabat); border-color:var(--talabat);">🛒 أضف للسلة</button>
+                    </form>
+                    <a href="{{ url_for('order_service', service_id=service.id) }}" class="btn btn-outline-primary w-100 btn-lg mb-2">⚡ اشتر الآن</a>
+                    <a href="{{ url_for('customer_services') }}" class="btn btn-outline-secondary w-100 btn-sm">{{ t('nav_services') }}</a>
+                {% elif not current_user %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary w-100 btn-lg">{{ t('btn_login_to_book') }}</a>
+                {% else %}
+                    <a href="{{ url_for('technician_tasks') if current_user.role == 'technician' else url_for('admin_dashboard') }}" class="btn btn-outline-secondary w-100 btn-lg">{{ t('nav_dashboard') }}</a>
+                {% endif %}
+                <div class="d-flex gap-2 justify-content-center mt-3 small text-muted flex-wrap">
+                    <span>🛡️ {{ t('svc_warranty') }}</span>
+                    <span>•</span>
+                    <span>⭐ 4.8</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

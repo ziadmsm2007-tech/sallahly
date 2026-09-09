@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav_my_orders') }} - صلحلي{% endblock %}
+{% block content %}
+<div class="page-head fade-up">
+    <h3>📦 {{ t('nav_my_orders') }}</h3>
+    <p>{{ orders | length }} {{ t('orders_count') }}</p>
+</div>
+
+<div class="panel">
+    <div class="panel-body">
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="tbl-modern">
+                <thead>
+                    <tr>
+                        <th>{{ t('th_id') }}</th>
+                        <th>{{ t('th_service') }}</th>
+                        <th>{{ t('th_location') }}</th>
+                        <th>{{ t('th_status') }}</th>
+                        <th>{{ t('order_payment') }}</th>
+                        <th>{{ t('th_actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    {% set st_key = 'status_' ~ order.status|lower|replace(' ', '_') %}
+                    {% set is_awaiting = order.status == 'Awaiting Payment' %}
+                    {% set is_paid = order.payment_status == 'Paid' %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>
+                            <div class="fw-bold" style="color:#212121">{{ order.service_name }}</div>
+                            <small class="text-muted">{{ t('currency') }} {{ order.service_price }}</small>
+                            {% if order.car_make %}<div><small style="color:#e65100; font-weight:700;">🚗 {{ order.car_make }} {{ order.car_model or '' }} {{ order.car_year or '' }}</small></div>{% endif %}
+                        </td>
+                        <td style="max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ order.location }}</td>
+                        <td>
+                            {% if is_awaiting and not is_paid %}
+                                <span class="st-badge st-awaiting-payment">💳 {{ t('status_awaiting_payment') }}</span>
+                            {% elif order.status == 'Completed' and is_paid %}
+                                <span class="st-badge st-completed">✅ {{ t('status_completed') }}</span>
+                            {% else %}
+                                <span class="st-badge st-{{ order.status|lower|replace(' ', '-') }}">{{ t(st_key) }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if is_paid %}
+                                <span class="st-badge st-completed">{{ t('payment_paid') }} • {{ order.payment_method }}</span>
+                            {% else %}
+                                <span class="st-badge st-pending">{{ t('payment_unpaid') }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{{ url_for('track_order', order_id=order.id) }}" class="btn btn-soft btn-sm">{{ t('btn_track') }}</a>
+                                {% if is_awaiting and not is_paid %}
+                                    <a href="{{ url_for('track_order', order_id=order.id) }}" class="btn btn-primary btn-sm">💳 {{ t('pay_now') }}</a>
+                                {% elif order.status == 'Pending' %}
+                                    <a href="{{ url_for('cancel_order', order_id=order.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('{{ t('order_cancel_confirm') }}')">{{ t('btn_cancel') }}</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="empty-icon">📭</span>
+            <p>{{ t('dash_no_orders') }} <a href="{{ url_for('customer_services') }}">{{ t('dash_book_service') }}</a></p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

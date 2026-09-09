@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ lang_dir }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="صلحلي - دكتور عربيتك | صيانة بثقة">
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.svg') }}" type="image/svg+xml">
+    <title>{% block title %}صلحلي{% endblock %}</title>
+    {% set bs = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" if lang_dir == "rtl" else "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" %}
+    <link href="{{ bs }}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#ff5a00">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="tala-body">
+
+<!-- Talabat-style top bar -->
+<nav class="navbar navbar-expand-lg tala-navbar sticky-top">
+    <div class="container tala-nav-inner">
+        <a class="navbar-brand tala-brand" href="{{ url_for('landing') }}">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="صلحلي" width="36" height="36">
+            <span>صلحلي</span>
+        </a>
+
+        <!-- Deliver to — Talabat location pill -->
+        <div class="tala-deliver d-none d-lg-flex" onclick="window.location.href='{{ url_for('checkout') if current_user and current_user.role=='client' else url_for('customer_services') if current_user else url_for('landing') }}'">
+            <span class="tala-deliver-icon">📍</span>
+            <div class="tala-deliver-text">
+                <small>Deliver to</small>
+                <strong>{% if current_user and current_user.governorate %}{{ current_user.governorate }}{% if current_user.city %} — {{ current_user.city }}{% endif %}{% else %}Select location{% endif %}</strong>
+            </div>
+            <span class="tala-deliver-arrow">▼</span>
+        </div>
+
+        <!-- Talabat search bar — center -->
+        <form class="tala-search flex-grow-1 mx-lg-3 my-2 my-lg-0" onsubmit="return handleTalaSearch(event)">
+            <span class="tala-search-icon">🔍</span>
+            <input id="talaSearchInput" type="search" placeholder="{{ 'Search for services, oil, brakes...' if lang!='ar' else 'دوّر على خدمة — زيت، فرامل، تكييف...' }}" aria-label="Search">
+            <button type="submit" class="tala-search-btn">{{ 'Search' if lang!='ar' else 'بحث' }}</button>
+        </form>
+
+        <button class="navbar-toggler tala-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMain">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 tala-nav-links">
+                <li class="nav-item d-none d-lg-block"><a class="nav-link tala-navlink" href="{{ url_for('landing') }}">{{ t('nav_home') }}</a></li>
+                {% if current_user %}
+                    {% if current_user.email.lower() == owner_email %}
+                        <li class="nav-item d-none d-lg-block"><a class="nav-link tala-navlink" href="{{ url_for('admin_dashboard') }}">🔐 {{ t('admin_owner_title') }}</a></li>
+                    {% endif %}
+                    {% if current_user.role == 'client' %}
+                        <li class="nav-item d-none d-lg-block"><a class="nav-link tala-navlink" href="{{ url_for('customer_dashboard') }}">{{ t('nav_dashboard') }}</a></li>
+                        <li class="nav-item d-none d-lg-block"><a class="nav-link tala-navlink" href="{{ url_for('customer_services') }}">{{ t('nav_services') }}</a></li>
+                        <li class="nav-item d-none d-lg-block"><a class="nav-link tala-navlink" href="{{ url_for('my_orders') }}">{{ t('nav_my_orders') }}</a></li>
+                    {% elif current_user.role == 'technician' %}
+                        <li class="nav-item"><a class="nav-link tala-navlink" href="{{ url_for('technical_dashboard') }}">{{ t('nav_dashboard') }}</a></li>
+                        <li class="nav-item"><a class="nav-link tala-navlink" href="{{ url_for('technician_tasks') }}">{{ t('nav_my_tasks') }}</a></li>
+                    {% endif %}
+                {% else %}
+                    <li class="nav-item d-none d-lg-block"><a class="nav-link tala-navlink" href="{{ url_for('overview') }}">{{ t('nav_about') }}</a></li>
+                {% endif %}
+                <li class="nav-item d-none d-lg-block"><a class="nav-link tala-navlink" href="{{ url_for('contact_us') }}">{{ t('nav_contact') }}</a></li>
+
+                {% if current_user and current_user.role == 'client' %}
+                <li class="nav-item">
+                    <a class="nav-link tala-icon-btn position-relative" href="{{ url_for('cart_page') }}" title="Basket">
+                        <span style="font-size:1.2rem;">🛒</span>
+                        {% if cart_count %}
+                        <span class="tala-badge">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endif %}
+                {% if current_user %}
+                <li class="nav-item">
+                    <a class="nav-link tala-icon-btn position-relative" href="{{ url_for('notifications_page') }}" title="{{ t('notifications') }}">
+                        <span style="font-size:1.15rem;">🔔</span>
+                        {% if unread_notifications %}
+                        <span class="tala-badge" style="background:#212121;">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item d-none d-lg-block">
+                    <button class="nav-link btn tala-icon-btn" id="darkToggle" title="🌙/☀️" style="border:none; width:36px; height:36px; display:grid; place-items:center; background:rgba(255,255,255,.18); border-radius:50%;">🌙</button>
+                </li>
+                <li class="nav-item dropdown lang-dropdown ms-lg-1">
+                    <button class="btn btn-sm dropdown-toggle tala-lang-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                        🌐 {{ LANGUAGES[lang] }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% for code, label in LANGUAGES.items() %}
+                        <li>
+                            <a class="dropdown-item {{ 'active' if lang == code else '' }}" href="{{ url_for('set_lang', code=code) }}">
+                                {% if code == 'en' %}🇬🇧{% elif code == 'ar' %}🇪🇬{% elif code == 'fr' %}🇫🇷{% endif %}
+                                {{ label }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% if current_user %}
+                    <li class="nav-item ms-lg-1 d-none d-lg-block">
+                        <span class="tala-user-pill">👤 {{ current_user.name }}</span>
+                    </li>
+                    <li class="nav-item d-none d-lg-block">
+                        <a class="nav-link tala-navlink" href="{{ url_for('logout') }}">{{ t('nav_logout') }}</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item ms-lg-2 d-none d-lg-block">
+                        <a class="nav-link tala-navlink" href="{{ url_for('login') }}">{{ t('nav_login') }}</a>
+                    </li>
+                    <li class="nav-item d-none d-lg-block">
+                        <a class="btn btn-light btn-sm px-3 fw-bold" style="border-radius:50rem; color:var(--talabat);" href="{{ url_for('register') }}">{{ t('nav_register') }}</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile deliver bar (Talabat second row) -->
+<div class="tala-subbar d-lg-none">
+    <div class="container d-flex align-items-center gap-2 py-2">
+        <div class="tala-sub-deliver flex-grow-1" onclick="window.location.href='{{ url_for('checkout') if current_user and current_user.role=='client' else url_for('customer_services') if current_user else url_for('landing') }}'">
+            <span>📍</span>
+            <div class="flex-grow-1">
+                <small>Deliver to</small>
+                <strong>{% if current_user and current_user.governorate %}{{ current_user.governorate }}{% else %}Select location{% endif %}</strong>
+            </div>
+            <span style="opacity:.7; font-size:.75rem;">▼</span>
+        </div>
+        {% if current_user and current_user.role=='client' %}
+        <a href="{{ url_for('cart_page') }}" class="tala-sub-cart position-relative">🛒{% if cart_count %}<span class="tala-badge" style="position:absolute; top:-6px; right:-6px;">{{ cart_count }}</span>{% endif %}</a>
+        {% endif %}
+    </div>
+</div>
+
+<main>
+<div class="container mt-3 mb-4 pb-5 pb-lg-0">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="alert alert-info alert-dismissible fade show tala-alert" role="alert">
+                    {{ t(msg) if msg is string else msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+</main>
+
+<footer class="app-footer mt-auto">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h6 style="display:flex; align-items:center; gap:.5rem;"><img src="{{ url_for('static', filename='images/logo.svg') }}" width="28" height="28" style="border-radius:8px;"> صلحلي</h6>
+                <p class="mb-3" style="font-size:.93rem">{{ t('brand_tagline') }}</p>
+                <p class="mb-0">{{ t('footer_about') }}</p>
+            </div>
+            <div class="col-md-2 col-6">
+                <h6>{{ t('footer_quick_links') }}</h6>
+                <a class="foot-link" href="{{ url_for('landing') }}">{{ t('nav_home') }}</a>
+                <a class="foot-link" href="{{ url_for('overview') }}">{{ t('nav_about') }}</a>
+                <a class="foot-link" href="{{ url_for('contact_us') }}">{{ t('nav_contact') }}</a>
+                <a class="foot-link" href="{{ url_for('login') }}">{{ t('nav_login') }}</a>
+            </div>
+            <div class="col-md-3 col-6">
+                <h6>{{ t('footer_services') }}</h6>
+                {% for c in ['Engine', 'Brakes', 'Electrical', 'Tires', 'Air Conditioning'] %}
+                    <a class="foot-link" href="{{ url_for('landing') }}#categories">{{ localize_category(c, lang) }}</a>
+                {% endfor %}
+            </div>
+            <div class="col-md-3">
+                <h6>{{ t('footer_get_in_touch') }}</h6>
+                <p class="mb-2" style="font-size:.93rem">📞 {{ t('contact_phone') }}</p>
+                <p class="mb-2" style="font-size:.93rem">✉️ {{ t('contact_email_label') }}: <span class="text-white">support@صلحلي.app</span></p>
+                <p class="mb-0" style="font-size:.93rem">🕘 {{ t('contact_hours') }}</p>
+            </div>
+        </div>
+        <div class="foot-bottom text-center">
+            © 2026 صلحلي — {{ t('footer_rights') }}
+        </div>
+    </div>
+</footer>
+
+<!-- Talabat bottom navigation — mobile only -->
+<nav class="tala-bottom-nav d-lg-none" aria-label="Mobile navigation">
+    <a href="{{ url_for('landing') }}" class="tala-bnav-item {% if request.endpoint=='landing' %}active{% endif %}">
+        <span class="tala-bnav-icon">🏠</span>
+        <small>Home</small>
+    </a>
+    <a href="{{ url_for('customer_services') if current_user and current_user.role=='client' else url_for('landing') }}#categories" class="tala-bnav-item {% if request.endpoint in ['customer_services','service_details'] %}active{% endif %}">
+        <span class="tala-bnav-icon">🔍</span>
+        <small>{{ t('nav_services') }}</small>
+    </a>
+    <a href="{{ url_for('cart_page') if current_user and current_user.role=='client' else url_for('login') }}" class="tala-bnav-item position-relative {% if request.endpoint=='cart_page' %}active{% endif %}">
+        <span class="tala-bnav-icon">🛒</span>
+        <small>Cart</small>
+        {% if cart_count %}<span class="tala-bnav-badge">{{ cart_count }}</span>{% endif %}
+    </a>
+    <a href="{{ url_for('customer_dashboard') if current_user and current_user.role=='client' else url_for('technical_dashboard') if current_user and current_user.role=='technician' else url_for('admin_dashboard') if current_user and current_user.email.lower()==owner_email else url_for('login') }}" class="tala-bnav-item {% if request.endpoint in ['customer_dashboard','technical_dashboard','admin_dashboard','my_orders'] %}active{% endif %}">
+        <span class="tala-bnav-icon">👤</span>
+        <small>{{ 'Account' if lang!='ar' else 'حسابي' }}</small>
+    </a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Dark mode
+(function(){
+  const saved = localStorage.getItem('sallahly-theme');
+  if(saved) document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('darkToggle');
+  if(btn){
+    const updateIcon = () => btn.textContent = document.documentElement.getAttribute('data-theme')==='dark' ? '☀️' : '🌙';
+    updateIcon();
+    btn.addEventListener('click', ()=>{
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur==='dark' ? 'light' : 'dark';
+      if(next==='dark') document.documentElement.setAttribute('data-theme','dark');
+      else document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('sallahly-theme', next);
+      updateIcon();
+    });
+  }
+})();
+// Talabat search handler
+function handleTalaSearch(e){
+  e.preventDefault();
+  const q = (document.getElementById('talaSearchInput')||{}).value || '';
+  const trim = q.trim();
+  // if on services page, dispatch filter event
+  if(window.filterServices && document.getElementById('svcGrid')){
+    window.filterServices(trim);
+    const el = document.getElementById('svcGrid');
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    history.replaceState(null,'',trim ? '?q='+encodeURIComponent(trim) : location.pathname);
+    return false;
+  }
+  window.location.href = '{{ url_for("customer_services") }}' + (trim ? ('?q='+encodeURIComponent(trim)) : '');
+  return false;
+}
+(function(){
+  const inp = document.getElementById('talaSearchInput');
+  if(!inp) return;
+  // prefill from ?q=
+  try{
+    const qp = new URLSearchParams(location.search).get('q');
+    if(qp) inp.value = qp;
+    // if on services page and qp present, filter on load
+    if(qp && window.filterServices && document.getElementById('svcGrid')){
+      setTimeout(()=> window.filterServices(qp), 300);
+    }
+  }catch(e){}
+  inp.addEventListener('input', ()=>{
+    if(window.filterServices && document.getElementById('svcGrid')){
+      window.filterServices(inp.value);
+    }
+  });
+})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  navigator.serviceWorker.register('/static/firebase-messaging-sw.js').catch(()=>{});
+}
+try{
+  firebase.initializeApp({apiKey:"AIzaSyDemo",authDomain:"sallahly-demo.firebaseapp.com",projectId:"sallahly-demo",messagingSenderId:"123456789",appId:"1:123456789:web:abcdef"});
+  const messaging = firebase.messaging();
+  if('Notification' in window && Notification.permission === 'default'){
+    setTimeout(()=> Notification.requestPermission().then(perm=>{
+      if(perm==='granted') messaging.getToken({vapidKey:'demo'}).then(token=>{
+        if(token) fetch('/save_fcm_token', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token})});
+      }).catch(()=>{});
+    }).catch(()=>{}), 3000);
+  } else if(Notification.permission === 'granted'){
+    messaging.getToken({vapidKey:'demo'}).then(token=>{
+      if(token) fetch('/save_fcm_token', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token})});
+    }).catch(()=>{});
+  }
+  messaging.onMessage(payload=>{
+    if(Notification.permission==='granted'){
+      new Notification(payload.notification?.title||'صلحلي', {body: payload.notification?.body||'إشعار جديد', icon:'/static/images/logo.svg'});
+    }
+  });
+}catch(e){}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% block title %}{{ t('btn_book') }} - صلحلي{% endblock %}
+{% block extra_css %}
+<style>
+  .pay-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .pay-opt { position: relative; }
+  .pay-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .pay-opt label { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1.5px solid #e3e8f0; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: .9rem; transition: all .15s; margin: 0; }
+  .pay-opt label:hover { border-color: #f97316; background: #fff7f0; }
+  .pay-opt input:checked + label { border-color: #f97316; background: linear-gradient(135deg,#fff7f0,#ffe9d6); box-shadow: 0 4px 14px rgba(249,115,22,.18); color: #c2410c; }
+  .loc-result { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; min-height: 48px; font-size: .92rem; display: flex; align-items: center; gap: 8px; }
+  .loc-result.has-value { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+  .loc-btn { min-width: 200px; }
+  .loc-btn.loading { opacity: .7; pointer-events: none; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="auth-card fade-up">
+            <div class="auth-head">
+                <div class="auth-icon">📝</div>
+                {% if image_url %}
+                <img src="{{ image_url }}" alt="{{ service.name }}" style="width:100%; max-height:190px; object-fit:cover; border-radius:12px; margin-bottom:.75rem;" onerror="this.style.display='none'">
+                {% endif %}
+                <h3 class="mb-1">{{ t('order_title', service=service.name) }}</h3>
+                <p class="mb-0" style="color:rgba(255,255,255,.85)">
+                    {% if is_variable %}
+                        <span style="color:#fef08a; font-weight:800;">⚡ السعر يحدده الفني بعد المعاينة</span>
+                    {% else %}
+                        <span id="priceHeader" style="display:none;">{{ t('order_est') }}: <strong class="text-white"><span id="priceValue">{{ t('currency') }} {{ service.base_price }}</span></strong></span>
+                        <small id="priceHint" style="color:rgba(255,255,255,.85)">🚗 اختر نوع عربيتك لتظهر السعر</small>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="auth-body">
+                <form method="POST" id="orderForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">{{ t('order_full_name') }}</label>
+                        <div class="input-icon-wrap">
+                            <span class="lead">👤</span>
+                            <input type="text" name="name" class="form-control" value="{{ current_user.name }}" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ t('order_phone') }}</label>
+                        <div class="input-icon-wrap">
+                            <span class="lead">📞</span>
+                            <input type="tel" name="phone" class="form-control" placeholder="01xxxxxxxxx" dir="ltr" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">{{ t('order_address_lbl') }}</label>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <button type="button" id="useLocBtn" class="btn btn-primary loc-btn">📍 {{ t('order_use_current') }}</button>
+                            <span class="align-self-center text-muted small">{{ t('geo_hint') }}</span>
+                        </div>
+                        <div class="loc-result" id="locResult">
+                            <span>📍</span>
+                            <span id="locText">{{ t('order_no_location') }}</span>
+                        </div>
+                        <input type="hidden" id="locationInput" name="location">
+                        <input type="hidden" id="latInput" name="lat">
+                        <input type="hidden" id="lngInput" name="lng">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">📅 {{ t('order_scheduled') }}</label>
+                        <div class="d-flex gap-2 mb-2">
+                            <input type="radio" class="btn-check" name="when" id="whenNow" value="now" checked>
+                            <label class="btn btn-outline-primary" for="whenNow">⚡ {{ t('order_now') }}</label>
+                            <input type="radio" class="btn-check" name="when" id="whenLater" value="later">
+                            <label class="btn btn-outline-primary" for="whenLater">📅 {{ t('order_later') }}</label>
+                        </div>
+                        <div id="schedWrap" style="display:none">
+                            <input type="datetime-local" name="scheduled_at" id="schedInput" class="form-control">
+                            <div class="form-text">{{ t('order_scheduled_hint') }}</div>
+                        </div>
+                    </div>
+
+                    {% if not hide_car %}
+                    <div class="mb-4">
+                        <label class="form-label">🚗 {{ t('car_section') }}</label>
+                        <div class="input-icon-wrap mb-2">
+                            <span class="lead">🔎</span>
+                            <input type="text" id="carSearch" class="form-control" placeholder="{{ t('car_search') }}">
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <select name="car_make" id="carMake" class="form-select" required>
+                                    <option value="">{{ t('car_make_pick') }}</option>
+                                    {% for make in car_makes_list %}
+                                    <option value="{{ make }}">{{ make }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <select name="car_model" id="carModel" class="form-select" required>
+                                    <option value="">{{ t('car_model_pick') }}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" name="car_year" class="form-control" placeholder="{{ t('car_year') }}" min="1980" max="2026" dir="ltr">
+                            </div>
+                        </div>
+                        <div class="loc-result mt-2" id="carResult">
+                            <span>🚗</span>
+                            <span id="carText">{{ t('car_make_pick') }} + {{ t('car_model_pick') }}</span>
+                            <strong id="carPrice" class="ms-auto"></strong>
+                        </div>
+                        <div id="otherModelWrap" style="display:none;" class="mt-2">
+                            <input type="text" id="otherModelInput" class="form-control" placeholder="اكتب موديل عربيتك ...">
+                            <div class="form-text">مش لاقي موديلك؟ اختار Other واكتب الاسم هنا</div>
+                        </div>
+                    </div>
+
+                    {% endif %}
+                    {% if hide_car %}
+                    <input type="hidden" name="car_make" value="Other">
+                    <input type="hidden" name="car_model" value="Other model">
+                    {% endif %}
+                    <div class="mb-4">
+                        <label class="form-label">📸 {{ t('fault_photo') }}</label>
+                        <input type="file" name="fault_photo" id="faultInput" accept="image/*" class="form-control">
+                        <div class="form-text">{{ t('fault_hint') }}</div>
+                        <div id="faultPreview" style="display:none; margin-top:10px;">
+                            <img id="faultImg" style="width:100%; max-height:180px; object-fit:cover; border-radius:12px; border:1px solid #e5e7eb;">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info small mb-4" style="border-left: 4px solid var(--talabat);">💳 {{ t('awaiting_payment') }} — {{ t('payment_unpaid') }}</div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">{{ t('btn_confirm') }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var locInput = document.getElementById('locationInput');
+    var latInput = document.getElementById('latInput');
+    var lngInput = document.getElementById('lngInput');
+    var locText = document.getElementById('locText');
+    var locResult = document.getElementById('locResult');
+    var btn = document.getElementById('useLocBtn');
+    var originalBtnText = btn.innerHTML;
+
+    function setLocation(name, lat, lng) {
+        locInput.value = name;
+        if(lat) latInput.value = lat;
+        if(lng) lngInput.value = lng;
+        locText.textContent = name;
+        locResult.classList.add('has-value');
+    }
+
+    function setLoading(loading) {
+        if (loading) {
+            btn.classList.add('loading');
+            btn.innerHTML = '⏳ {{ t("geo_loading") }}';
+        } else {
+            btn.classList.remove('loading');
+            btn.innerHTML = originalBtnText;
+        }
+    }
+
+    function reverseGeocode(lat, lon, onDone) {
+        fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lon + '&accept-language=ar')
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                var addr = d.display_name || (lat.toFixed(5) + ', ' + lon.toFixed(5));
+                setLocation(addr, lat, lon);
+                setLoading(false);
+                if (onDone) onDone();
+            })
+            .catch(function () {
+                setLocation(lat.toFixed(5) + ', ' + lon.toFixed(5), lat, lon);
+                setLoading(false);
+                if (onDone) onDone();
+            });
+    }
+
+    function fetchByIP() {
+        fetch('https://ipapi.co/json/')
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (d && d.latitude && d.longitude) {
+                    reverseGeocode(d.latitude, d.longitude);
+                } else if (d && d.city) {
+                    var addr = [d.city, d.region, d.country_name].filter(Boolean).join(', ');
+                    setLocation(addr, d.latitude, d.longitude);
+                    setLoading(false);
+                } else {
+                    throw new Error('no location');
+                }
+            })
+            .catch(function () {
+                setLoading(false);
+                alert('{{ t("geo_fail") }}');
+            });
+    }
+
+    btn.addEventListener('click', function () {
+        setLoading(true);
+
+        // دايماً نجرب GPS مكانك الحالي الأول — لو اترفض أو غير متاح نروح للـ IP
+        if (!navigator.geolocation) {
+            fetchByIP();
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+        }, function (err) {
+            fetchByIP();
+        }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+    });
+
+    document.getElementById('orderForm').addEventListener('submit', function (e) {
+        if (!locInput.value) {
+            e.preventDefault();
+            alert('{{ t("geo_missing") }}');
+        }
+    });
+
+    // ------- car search + brand/model picker + live price by car tier -------
+    var IS_VARIABLE = {{ 'true' if is_variable else 'false' }};
+    var CAR_DATA = {{ car_makes | tojson }};
+    var TIER_MULT = {{ tier_mult | tojson }};
+    var TIER_MAP = {{ car_tier_map | tojson }};
+    var RAW_PRICE = {{ raw_price }};
+    var CURRENCY = '{{ t("currency") }}';
+    var carSearch = document.getElementById('carSearch');
+    var carMake = document.getElementById('carMake');
+    var carModel = document.getElementById('carModel');
+    var carText = document.getElementById('carText');
+    var carResult = document.getElementById('carResult');
+    var otherWrap = document.getElementById('otherModelWrap');
+    var otherInput = document.getElementById('otherModelInput');
+    var carPrice = document.getElementById('carPrice');
+    var priceValue = document.getElementById('priceValue');
+    var allMakes = Array.prototype.slice.call(carMake.options).slice(1);
+
+    function tierPrice(make) {
+        var tier = TIER_MAP[make] || 'economy';
+        var mult = TIER_MULT[tier] || 1.0;
+        return {price: Math.round(RAW_PRICE * 2.2 * mult / 25) * 25, tier: tier};
+    }
+
+    var priceHeader = document.getElementById('priceHeader');
+    var priceHint = document.getElementById('priceHint');
+    function updateCarText() {
+        var m = carMake.value, mo = carModel.value;
+        if (m === 'Other' && otherInput && otherInput.value.trim()) {
+            mo = otherInput.value.trim();
+        } else if (mo === 'Other model' && otherInput && otherInput.value.trim()) {
+            mo = otherInput.value.trim();
+        }
+        var showOther = (m === 'Other' || mo === 'Other model');
+        if (otherWrap) otherWrap.style.display = showOther ? '' : 'none';
+        if (IS_VARIABLE) {
+            if (m && mo) {
+                carText.textContent = '🚗 ' + m + ' ' + mo + ' — يحدد بعد المعاينة';
+                carPrice.textContent = 'يحدد بعد المعاينة';
+                carResult.classList.add('has-value');
+            } else {
+                carText.textContent = '{{ t("car_make_pick") }} + {{ t("car_model_pick") }}';
+                carPrice.textContent = '';
+                carResult.classList.remove('has-value');
+            }
+            return;
+        }
+        if (m && mo) {
+            var tp = tierPrice(m);
+            carText.textContent = '🚗 ' + m + ' ' + mo;
+            carPrice.textContent = CURRENCY + ' ' + tp.price;
+            if (priceValue) priceValue.textContent = CURRENCY + ' ' + tp.price;
+            if (priceHeader) priceHeader.style.display = '';
+            if (priceHint) priceHint.style.display = 'none';
+            carResult.classList.add('has-value');
+        } else {
+            carPrice.textContent = '';
+            if (priceValue) priceValue.textContent = '';
+            if (priceHeader) priceHeader.style.display = 'none';
+            if (priceHint) priceHint.style.display = '';
+            carResult.classList.remove('has-value');
+        }
+    }
+
+    function fillModels(make) {
+        carModel.innerHTML = '';
+        var first = document.createElement('option');
+        first.value = '';
+        first.textContent = '{{ t("car_model_pick") }}';
+        carModel.appendChild(first);
+        (CAR_DATA[make] || []).forEach(function (mo) {
+            var o = document.createElement('option');
+            o.value = mo; o.textContent = mo;
+            carModel.appendChild(o);
+        });
+        updateCarText();
+    }
+
+    carSearch.addEventListener('input', function () {
+        var q = (carSearch.value || '').toLowerCase().trim();
+        carMake.innerHTML = '';
+        var first = document.createElement('option');
+        first.value = '';
+        first.textContent = '{{ t("car_make_pick") }}';
+        carMake.appendChild(first);
+        var shown = 0;
+        allMakes.forEach(function (opt) {
+            if (!q || opt.text.toLowerCase().indexOf(q) !== -1) {
+                carMake.appendChild(opt.cloneNode(true));
+                shown++;
+            }
+        });
+        if (shown === 1) {
+            carMake.selectedIndex = 1;
+            fillModels(carMake.value);
+        } else {
+            carModel.innerHTML = '';
+            var f2 = document.createElement('option');
+            f2.value = '';
+            f2.textContent = '{{ t("car_model_pick") }}';
+            carModel.appendChild(f2);
+        }
+    });
+
+    carMake.addEventListener('change', function () { fillModels(carMake.value); });
+    carModel.addEventListener('change', updateCarText);
+    if(otherInput) otherInput.addEventListener('input', updateCarText);
+
+    // قبل الإرسال: لو Other اكتب القيمة المخصصة في الـ select
+    document.getElementById('orderForm').addEventListener('submit', function(){
+        if(carMake.value === 'Other' && otherInput && otherInput.value.trim()){
+            // لا نغير الماركة، لكن الموديل يبقى القيمة المكتوبة
+            var opt=document.createElement('option');
+            opt.value=otherInput.value.trim(); opt.textContent=otherInput.value.trim();
+            carModel.appendChild(opt); carModel.value=otherInput.value.trim();
+        } else if(carModel.value === 'Other model' && otherInput && otherInput.value.trim()){
+            carModel.value = otherInput.value.trim();
+            // أضف option مؤقت
+            var opt2=document.createElement('option');
+            opt2.value=otherInput.value.trim(); opt2.textContent=otherInput.value.trim();
+            carModel.appendChild(opt2); carModel.value=otherInput.value.trim();
+        }
+    });
+
+    var faultInput=document.getElementById('faultInput');
+    if(faultInput){
+        faultInput.addEventListener('change', function(e){
+            var f=e.target.files[0];
+            if(f){
+                var u=URL.createObjectURL(f);
+                document.getElementById('faultImg').src=u;
+                document.getElementById('faultPreview').style.display='block';
+            }
+        });
+    }
+
+    // ------- now vs later -------
+    var whenNow = document.getElementById('whenNow');
+    var whenLater = document.getElementById('whenLater');
+    var schedWrap = document.getElementById('schedWrap');
+    var schedInput = document.getElementById('schedInput');
+    function syncWhen() {
+        var later = whenLater.checked;
+        schedWrap.style.display = later ? '' : 'none';
+        if (later) {
+            schedInput.required = true;
+            var now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            schedInput.min = now.toISOString().slice(0, 16);
+        } else {
+            schedInput.required = false;
+            schedInput.value = '';
+        }
+    }
+    whenNow.addEventListener('change', syncWhen);
+    whenLater.addEventListener('change', syncWhen);
+    syncWhen();
+})();
+</script>
+{% endblock %}

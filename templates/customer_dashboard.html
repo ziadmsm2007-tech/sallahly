@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav_dashboard') }} - صلحلي{% endblock %}
+{% block content %}
+
+<!-- Talabat greeting header — orange -->
+<div class="p-3 mb-3" style="background:linear-gradient(135deg,#ff5a00 0%, #ff7a33 100%); border-radius:18px; color:#fff; position:relative; overflow:hidden;">
+    <div style="position:absolute; width:260px; height:260px; background:radial-gradient(circle, rgba(255,255,255,.14), transparent 66%); top:-90px; right:-50px; border-radius:50%;"></div>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3" style="position:relative; z-index:1;">
+        <div>
+            <div style="font-weight:800; font-size:1.25rem;">👋 {{ t('dash_welcome') }} {{ current_user.name }}</div>
+            <div style="opacity:.9; font-size:.9rem;">{{ t('brand_tagline') }} • ⭐ 4.8 Rating</div>
+            {% if current_user.referral_code %}
+            <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                <span style="background:#fff; color:#ff5a00; border-radius:50rem; padding:.3rem .75rem; font-weight:800; font-size:.78rem;">🎁 كودك: <strong id="refCode">{{ current_user.referral_code }}</strong> • نقاطك: <strong>{{ current_user.points or 0 }}</strong></span>
+                <button class="btn btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('refCode').innerText); this.textContent='✅ تم النسخ'; setTimeout(()=>this.textContent='📋 نسخ',1500)" style="background:rgba(255,255,255,.18); color:#fff; border:1px solid rgba(255,255,255,.3); border-radius:50rem; font-size:.75rem; font-weight:700;">📋 نسخ</button>
+            </div>
+            {% endif %}
+        </div>
+        <div class="d-none d-md-flex align-items-center gap-2">
+            <a href="{{ url_for('cart_page') }}" class="btn btn-light btn-sm" style="border-radius:50rem; color:#ff5a00; font-weight:800;">🛒 View basket {% if cart_count %}({{ cart_count }}){% endif %}</a>
+            <div style="width:48px; height:48px; background:rgba(255,255,255,.18); border-radius:14px; display:grid; place-items:center; font-size:1.6rem; border:1px solid rgba(255,255,255,.25);">🎁</div>
+        </div>
+    </div>
+    <!-- Talabat delivery info row -->
+    <div class="mt-3 d-flex align-items-center gap-2 flex-wrap" style="background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); border-radius:50rem; padding:.45rem .9rem; width:fit-content; max-width:100%;">
+        <span style="background:#fff; color:#ff5a00; width:28px; height:28px; display:grid; place-items:center; border-radius:50%; font-size:.9rem;">📍</span>
+        <span style="font-weight:700; font-size:.85rem;">Deliver to: {{ current_user.governorate or 'Select location' }}{% if current_user.city %} — {{ current_user.city }}{% endif %}</span>
+        <span style="opacity:.8; font-size:.7rem;">• 30 min</span>
+        <a href="{{ url_for('customer_services') }}" style="margin-inline-start:.3rem; background:#fff; color:#ff5a00; border-radius:50rem; padding:.2rem .6rem; font-weight:800; font-size:.75rem; text-decoration:none;">Change</a>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h6 class="fw-bold mb-0" style="color:#212121; font-size:1.05rem;">{{ t('dash_browse_cats') }}</h6>
+    <a href="{{ url_for('customer_services') }}" class="btn btn-sm" style="background:#fff; border:1.5px solid #ff5a00; color:#ff5a00; border-radius:50rem; font-weight:800;">{{ t('dash_view_all') }} →</a>
+</div>
+
+<!-- Main groups — Talabat tile grid -->
+<div class="row g-2 g-md-3 mb-4">
+    {% for gname, info in main_groups.items() %}
+    <div class="col-6 col-md-4 col-lg-2">
+        <a class="s-card cat-card cat-link text-decoration-none" href="{{ url_for('customer_services', group=info.key) }}" style="background:#fff; border:1px solid #f0f0f0; padding:1.1rem .7rem;">
+            <span class="cat-icon" style="font-size:2.2rem;">{{ info.icon }}</span>
+            <h6 class="fw-bold mt-1 mb-1" style="color:#212121; font-size:.9rem;">{{ gname }}</h6>
+            <small class="text-muted" style="font-size:.75rem;">{{ info.count }} {{ t('services_available') }}</small>
+            <span class="mt-1 d-inline-block" style="background:#fff0e6; color:#ff5a00; border:1px solid #ffcc99; border-radius:50rem; padding:.15rem .5rem; font-weight:800; font-size:.72rem;">Order →</span>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Recent orders — Talabat order cards -->
+<div class="tala-basket mb-4">
+    <div class="tala-basket-head">
+        <span>📋 {{ t('dash_recent') }}</span>
+        <a href="{{ url_for('my_orders') }}" class="btn btn-sm" style="background:#fff0e6; border:1px solid #ffcc99; color:#ff5a00; border-radius:50rem; font-weight:800; font-size:.78rem;">{{ t('btn_track') }} →</a>
+    </div>
+    {% if orders %}
+    <div class="p-2 d-flex flex-column gap-2">
+        {% for order in orders %}
+        <div class="d-flex align-items-center gap-3 p-3" style="border:1px solid #f5f5f5; border-radius:14px; background:#fff;">
+            <div style="width:52px; height:52px; border-radius:12px; background:#fff7ed; border:1px solid #ffcc99; display:grid; place-items:center; font-size:1.4rem; flex-shrink:0;">📦</div>
+            <div class="flex-grow-1 min-w-0">
+                <div class="fw-bold" style="color:#212121; font-size:.93rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#{{ order.id }} • {{ order.service_name }}</div>
+                <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+                    <span class="st-badge st-{{ order.status|lower|replace(' ', '-') }}" style="font-size:.72rem;">{{ t('status_' ~ order.status|lower|replace(' ', '_')) }}</span>
+                    <small class="text-muted" style="font-size:.75rem;">{{ order.scheduled_at or '' }}</small>
+                </div>
+            </div>
+            <div class="d-flex flex-column gap-1 align-items-end">
+                <a href="{{ url_for('track_order', order_id=order.id) }}" class="btn btn-sm" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800; font-size:.78rem; padding:.3rem .75rem;">{{ t('btn_track') }}</a>
+                {% if order.status == 'Pending' %}
+                <a href="{{ url_for('cancel_order', order_id=order.id) }}" class="btn btn-sm" style="background:#fff; border:1px solid #ffcdd2; color:#c62828; border-radius:50rem; font-weight:700; font-size:.72rem;">{{ t('btn_cancel') }}</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state py-4">
+        <span class="empty-icon" style="font-size:2.2rem; opacity:.3;">📭</span>
+        <p class="mb-2" style="font-size:.9rem;">{{ t('dash_no_orders') }}</p>
+        <a href="{{ url_for('customer_services') }}" class="btn btn-sm" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800;">{{ t('dash_book_service') }} →</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Reorder banner — Talabat cross-sell -->
+<div class="p-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#fff; border:1px solid #eeeeee; border-radius:16px;">
+    <div class="d-flex align-items-center gap-3">
+        <span style="width:44px; height:44px; display:grid; place-items:center; background:#e8f5e9; border-radius:12px; font-size:1.4rem;">🔁</span>
+        <div>
+            <div class="fw-bold" style="color:#212121; font-size:.93rem;">Need a quick reorder?</div>
+            <small class="text-muted">All your services in one basket — like Talabat</small>
+        </div>
+    </div>
+    <a href="{{ url_for('customer_services') }}" class="btn" style="background:#ff5a00; color:#fff; border-radius:50rem; font-weight:800;">Browse menu →</a>
+</div>
+
+{% endblock %}

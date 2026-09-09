@@ -1,0 +1,913 @@
+/* ============================================================
+   AutoCare - Talabat Style 🧡
+   Palette: Talabat Orange + Clean White + Pastel Cards
+   ============================================================ */
+:root {
+    --talabat: #ff5a00;
+    --talabat-dark: #e65100;
+    --talabat-light: #fff0e6;
+    --navy-900: #1a1a1a;
+    --navy-800: #ff5a00;
+    --navy-700: #ff6d1f;
+    --navy-600: #ff7a33;
+    --blue-600: #ff5a00;
+    --blue-500: #ff6d1f;
+    --blue-400: #ff8c4d;
+    --accent-600: #e65100;
+    --accent-500: #ff5a00;
+    --accent-400: #ff7a33;
+    --accent-300: #ff9a5c;
+    --accent: #ff5a00;
+    --accent-glow: 0 8px 22px rgba(255, 90, 0, .28);
+    --grad-primary: linear-gradient(135deg, #ff5a00 0%, #ff6d1f 50%, #ff7a33 100%);
+    --grad-gold: linear-gradient(135deg, #fff0e6 0%, #ffcc99 100%);
+    --bg: #f5f5f5;
+    --surface: #ffffff;
+    --surface-2: #fafafa;
+    --text: #212121;
+    --muted: #757575;
+    --border: #eeeeee;
+    --border-strong: #e0e0e0;
+    --success: #00a651;
+    --danger: #e53935;
+    --warning: #ff8f00;
+    --info: #0288d1;
+    --purple: #7b1fa2;
+    --radius: 16px;
+    --radius-sm: 12px;
+    --shadow-xs: 0 1px 4px rgba(0,0,0,.06);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,.07);
+    --shadow: 0 4px 16px rgba(0,0,0,.10);
+    --shadow-lg: 0 8px 28px rgba(0,0,0,.14);
+    --font: 'Cairo', 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    /* Dark mode */
+}
+[data-theme="dark"] {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --surface-2: #2a2a2a;
+    --text: #e0e0e0;
+    --muted: #9e9e9e;
+    --border: #333;
+    --border-strong: #444;
+}
+[data-theme="dark"] body { background: var(--bg); color: var(--text); }
+[data-theme="dark"] .s-card, [data-theme="dark"] .panel, [data-theme="dark"] .auth-card { background: #1e1e1e; border-color: #333; }
+[data-theme="dark"] .app-navbar { background: #1a1a1a; border-color: #333; }
+[data-theme="dark"] .app-footer { background: #0a0a0a; }
+    /* Talabat pastel set */
+    --pastel-1-bg: #fff3e0; --pastel-1-fg: #e65100;
+    --pastel-2-bg: #e8f5e9; --pastel-2-fg: #2e7d32;
+    --pastel-3-bg: #e3f2fd; --pastel-3-fg: #1565c0;
+    --pastel-4-bg: #fce4ec; --pastel-4-fg: #c2185b;
+    --pastel-5-bg: #fff8e1; --pastel-5-fg: #f57f17;
+    --pastel-6-bg: #f3e5f5; --pastel-6-fg: #6a1b9a;
+    --pastel-7-bg: #e0f2f1; --pastel-7-fg: #00695c;
+    --pastel-8-bg: #efebe9; --pastel-8-fg: #4e342e;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main { flex: 1 0 auto; }
+
+/* ---------- Buttons ---------- */
+.btn {
+    border-radius: 50rem;
+    font-weight: 700;
+    padding: .55rem 1.25rem;
+    transition: all .22s ease;
+    border-width: 2px;
+}
+.btn-lg { padding: .8rem 1.9rem; font-size: 1.05rem; }
+.btn-primary {
+    background: var(--talabat);
+    border-color: var(--talabat);
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .2px;
+    box-shadow: var(--accent-glow);
+}
+.btn-primary:hover, .btn-primary:focus {
+    background: var(--talabat-dark);
+    border-color: var(--talabat-dark);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(255, 90, 0, .35);
+}
+.btn-navy {
+    background: var(--grad-primary);
+    border-color: rgba(234, 179, 8, .35);
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(2, 6, 23, .35);
+}
+.btn-navy:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(2, 6, 23, .45); border-color: rgba(234, 179, 8, .55); }
+.btn-outline-navy {
+    border: 2px solid var(--navy-700);
+    color: var(--navy-700);
+}
+.btn-outline-navy:hover { background: var(--navy-700); color: #fff; }
+.btn-outline-light:hover { background: #fff; color: var(--navy-800); }
+.btn-soft {
+    background: rgba(59, 130, 246, .10);
+    color: var(--blue-600);
+    border: none;
+}
+.btn-soft:hover { background: rgba(59, 130, 246, .20); color: var(--navy-800); }
+.btn-outline-danger { border: 2px solid var(--danger); color: var(--danger); }
+.btn-outline-danger:hover { background: var(--danger); color: #fff; }
+
+/* ---------- Navbar — Talabat white ---------- */
+.app-navbar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    padding: .6rem 0;
+}
+.app-navbar .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 900;
+    font-size: 1.35rem;
+    color: var(--talabat);
+    letter-spacing: -.2px;
+}
+.brand-icon {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    border-radius: 12px;
+    background: var(--talabat);
+    box-shadow: 0 4px 12px rgba(255, 90, 0, .35);
+    font-size: 1.25rem;
+    color: #fff;
+}
+.app-navbar .nav-link {
+    color: #424242;
+    font-weight: 700;
+    border-radius: 50rem;
+    padding: .45rem 1rem;
+    transition: all .18s ease;
+}
+.app-navbar .nav-link:hover { color: var(--talabat); background: var(--talabat-light); }
+.app-navbar .nav-link.active { color: #fff; background: var(--talabat); font-weight: 800; }
+.navbar-toggler { border-color: rgba(255,255,255,.3); }
+.navbar-toggler:focus { box-shadow: 0 0 0 3px rgba(234, 179, 8, .4); }
+
+.lang-dropdown .btn {
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    color: #424242;
+    font-weight: 700;
+}
+.lang-dropdown .dropdown-menu {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: .4rem;
+    min-width: 10rem;
+}
+.lang-dropdown .dropdown-item {
+    border-radius: 9px;
+    font-weight: 600;
+    padding: .45rem .9rem;
+}
+.lang-dropdown .dropdown-item:hover { background: rgba(59, 130, 246, .1); color: var(--navy-800); }
+.lang-dropdown .dropdown-item.active { background: var(--navy-700); color: #fff; }
+
+/* ---------- Buttons in navbar ---------- */
+.nav-user-pill {
+    background: var(--talabat-light);
+    border: 1px solid #ffcc99 !important;
+    color: var(--talabat) !important;
+    border-radius: 50rem;
+    padding: .35rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-weight: 700;
+}
+.nav-user-pill:hover { background: #ffe0cc !important; }
+
+/* ---------- Hero ---------- */
+.hero {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ff5a00 0%, #ff7a33 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 3.5rem 2.2rem;
+    box-shadow: 0 8px 24px rgba(255, 90, 0, .25);
+    margin-top: 1.1rem;
+}
+.hero::before, .hero::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(2px);
+}
+.hero::before {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(255,255,255,.18), transparent 65%);
+    top: -120px; right: -80px;
+}
+.hero::after {
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(59, 130, 246, .5), transparent 65%);
+    bottom: -160px; left: -100px;
+}
+.hero .row { position: relative; z-index: 2; }
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 50rem;
+    padding: .4rem 1.1rem;
+    font-size: .9rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+}
+.hero h1 {
+    font-weight: 800;
+    font-size: clamp(2rem, 4.5vw, 3.4rem);
+    line-height: 1.25;
+}
+.hero .lead { color: rgba(255, 255, 255, .85); max-width: 36rem; }
+.hero-stats { display: flex; gap: 2.5rem; flex-wrap: wrap; margin-top: 2.5rem; }
+.hero-stat h3 { font-weight: 800; font-size: 1.9rem; margin: 0; }
+.hero-stat span { color: rgba(255, 255, 255, .72); font-weight: 600; font-size: .9rem; }
+
+.hero-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hero-gear {
+    width: 240px; height: 240px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, .16), rgba(255, 255, 255, .04));
+    border: 2px dashed rgba(255, 255, 255, .35);
+    font-size: 6rem;
+    animation: spin 30s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Section headers ---------- */
+.section-title { font-weight: 800; color: var(--navy-800); margin-bottom: .35rem; }
+.section-sub { color: var(--muted); font-weight: 500; }
+.kicker {
+    display: inline-block;
+    color: var(--accent-500);
+    font-weight: 800;
+    font-size: .85rem;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    margin-bottom: .5rem;
+}
+
+/* ---------- Feature / service cards — Talabat style 🧡 ---------- */
+.s-card {
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    transition: all .22s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+.s-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,.10);
+    border-color: #e0e0e0;
+}
+.icon-badge {
+    width: 54px; height: 54px;
+    display: grid; place-items: center;
+    border-radius: 14px;
+    font-size: 1.55rem;
+    margin-bottom: .9rem;
+    border: none;
+}
+/* Talabat pastel per card — like Talabat categories */
+.feat-card:nth-child(1) .icon-badge, .s-card:nth-child(1) .icon-badge { background: var(--pastel-1-bg); color: var(--pastel-1-fg); }
+.s-card .icon-badge { background: var(--pastel-3-bg); color: var(--pastel-3-fg); }
+.feat-card { padding: 1.5rem; }
+.feat-card h5 { font-weight: 800; color: #212121; font-size: 1.05rem; }
+.feat-card p { color: #757575; font-size: .9rem; margin: 0; line-height: 1.55; }
+
+.service-card { padding: 1.4rem; position: relative; overflow: hidden; }
+.service-card::before { display: none; }
+.service-card .price-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: var(--talabat-light);
+    color: var(--talabat);
+    font-weight: 800;
+    font-size: .88rem;
+    padding: .28rem .7rem;
+    border-radius: 50rem;
+    border: none;
+}
+/* Cat cards — Talabat pastel tiles */
+.cat-card {
+    padding: 1.4rem 1rem;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 16px;
+}
+.cat-card .cat-icon { font-size: 2.4rem; margin-bottom: .45rem; transition: transform .22s ease; }
+.cat-card h6 { font-weight: 800; color: #212121; font-size: .95rem; }
+.cat-card small { color: #9e9e9e; font-weight: 600; font-size: .82rem; }
+/* pastel cycle like Talabat */
+.col:nth-child(8n+1) .cat-card { background: var(--pastel-1-bg); border-color: #ffcc80; }
+.col:nth-child(8n+1) .cat-card .cat-icon { color: var(--pastel-1-fg); }
+.col:nth-child(8n+2) .cat-card { background: var(--pastel-2-bg); border-color: #a5d6a7; }
+.col:nth-child(8n+2) .cat-card .cat-icon { color: var(--pastel-2-fg); }
+.col:nth-child(8n+3) .cat-card { background: var(--pastel-3-bg); border-color: #90caf9; }
+.col:nth-child(8n+3) .cat-card .cat-icon { color: var(--pastel-3-fg); }
+.col:nth-child(8n+4) .cat-card { background: var(--pastel-4-bg); border-color: #f48fb1; }
+.col:nth-child(8n+4) .cat-card .cat-icon { color: var(--pastel-4-fg); }
+.col:nth-child(8n+5) .cat-card { background: var(--pastel-5-bg); border-color: #ffe082; }
+.col:nth-child(8n+5) .cat-card .cat-icon { color: var(--pastel-5-fg); }
+.col:nth-child(8n+6) .cat-card { background: var(--pastel-6-bg); border-color: #ce93d8; }
+.col:nth-child(8n+6) .cat-card .cat-icon { color: var(--pastel-6-fg); }
+.col:nth-child(8n+7) .cat-card { background: var(--pastel-7-bg); border-color: #80cbc4; }
+.col:nth-child(8n+7) .cat-card .cat-icon { color: var(--pastel-7-fg); }
+.col:nth-child(8n+8) .cat-card { background: var(--pastel-8-bg); border-color: #bcaaa4; }
+.col:nth-child(8n+8) .cat-card .cat-icon { color: var(--pastel-8-fg); }
+.cat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,.10); }
+
+/* Category links (clickable) */
+.cat-link { display: block; cursor: pointer; text-decoration: none; }
+.cat-link .mini-step {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: all .22s ease;
+}
+.cat-link:hover .mini-step { opacity: 1; transform: translateX(0); }
+.cat-link:hover .cat-icon { transform: scale(1.12) rotate(-6deg); }
+
+/* Fully clickable service cards */
+.svc-item a, .svc-card-link { text-decoration: none; }
+.svc-card-link:hover .svc-title { color: var(--blue-600); }
+.svc-title { transition: color .18s ease; }
+
+/* ---------- Panels / tables — Talabat ---------- */
+.panel {
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    overflow: hidden;
+}
+.panel-head {
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid #eeeeee;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: #212121;
+    background: #fff;
+    border-left: 4px solid var(--talabat);
+}
+.panel-body { padding: 1.4rem; }
+
+/* Stat cards — Talabat flat + pastel */
+.stat-card {
+    position: relative;
+    border-radius: 16px;
+    padding: 1.3rem 1.4rem;
+    background: #fff;
+    overflow: hidden;
+    border: 1px solid #eeeeee;
+    border-left: 4px solid var(--talabat);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    transition: all .22s ease;
+    color: #212121;
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.10); }
+.stat-card .stat-icon {
+    position: absolute;
+    bottom: -10px; inset-inline-end: -6px;
+    font-size: 3.8rem;
+    opacity: .08;
+}
+.stat-card h3 { font-weight: 900; font-size: 1.9rem; margin: 0; color: #212121; }
+.stat-card .stat-label { font-weight: 700; color: #757575; font-size: .85rem; text-transform: uppercase; letter-spacing: .4px; }
+.stat-navy { border-left-color: #ff5a00; }
+.stat-navy .stat-icon { color: #ff5a00; }
+.stat-orange { background: #fff3e0; border-left-color: #ff5a00; }
+.stat-orange h3, .stat-orange .stat-label { color: #212121; }
+.stat-green { border-left-color: #00a651; }
+.stat-green .stat-icon { color: #00a651; }
+.stat-blue { border-left-color: #1565c0; }
+.stat-blue .stat-icon { color: #1565c0; }
+.stat-purple { border-left-color: #6a1b9a; }
+.stat-purple .stat-icon { color: #6a1b9a; }
+.stat-teal { border-left-color: #00695c; }
+.stat-teal .stat-icon { color: #00695c; }
+.stat-teal { background: linear-gradient(135deg, #0d9488, #134e4a); }
+
+/* Tables */
+.tbl-modern { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; border-radius: var(--radius-sm); }
+.tbl-modern thead th {
+    background: var(--navy-800);
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    padding: .85rem 1.1rem;
+    border: none;
+    white-space: nowrap;
+}
+.tbl-modern thead th:first-child { border-start-start-radius: var(--radius-sm); }
+.tbl-modern thead th:last-child { border-start-end-radius: var(--radius-sm); }
+.tbl-modern tbody td {
+    padding: .85rem 1.1rem;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.tbl-modern tbody tr:hover td { background: #f6f9ff; }
+.tbl-modern tbody tr:last-child td { border-bottom: none; }
+
+/* Status badges */
+.st-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .32rem .85rem;
+    border-radius: 50rem;
+    font-weight: 700;
+    font-size: .8rem;
+    white-space: nowrap;
+}
+.st-pending { background: rgba(217, 119, 6, .14); color: var(--warning); }
+.st-in-progress { background: rgba(3, 132, 199, .14); color: var(--info); }
+.st-awaiting-payment { background: rgba(255, 90, 0, .13); color: #e65100; border: 1px solid rgba(255,90,0,.22); }
+.st-completed { background: rgba(22, 163, 74, .14); color: var(--success); }
+.st-rejected { background: rgba(220, 38, 38, .14); color: var(--danger); }
+
+/* ---------- Auth (login/register) ---------- */
+.auth-wrap { max-width: 480px; margin: 0 auto; }
+.auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.auth-card .auth-head {
+    background: linear-gradient(135deg, #ff5a00 0%, #ff7a33 100%);
+    color: #fff;
+    padding: 2rem 2rem 1.6rem;
+    text-align: center;
+    position: relative;
+}
+.auth-card .auth-head::after {
+    content: "";
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(234, 179, 8, .32), transparent 65%);
+    top: -80px; inset-inline-end: -60px;
+}
+.auth-card .auth-body { padding: 1.8rem 2rem 2rem; }
+.auth-icon {
+    width: 64px; height: 64px;
+    margin: 0 auto .8rem;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--accent);
+    font-size: 1.7rem;
+    box-shadow: 0 8px 22px rgba(202, 138, 4, .45);
+    border: 1px solid rgba(255,255,255,.25);
+}
+.form-control, .form-select {
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    padding: .6rem .95rem;
+    font-weight: 500;
+    font-family: var(--font);
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, .15);
+}
+.form-label { font-weight: 700; font-size: .92rem; color: var(--navy-800); }
+.otp-input {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: .6em;
+    font-family: monospace;
+}
+.input-icon-wrap { position: relative; }
+.input-icon-wrap .form-control { padding-inline-start: 2.7rem; }
+.input-icon-wrap .lead { position: absolute; inset-inline-start: 1rem; top: 50%; transform: translateY(-50%); opacity: .55; }
+
+/* ---------- Track order stepper ---------- */
+.track-steps { list-style: none; padding: 0; margin: 0; }
+.track-steps li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: .8rem;
+    font-weight: 600;
+    transition: all .2s ease;
+}
+.track-steps li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    background: var(--border);
+    top: 100%;
+    bottom: -0.8rem;
+    inset-inline-start: 2.15rem;
+}
+.track-step-icon {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    background: #f1f5f9;
+    color: var(--muted);
+    font-size: 1.1rem;
+}
+.track-steps li.done {
+    border-color: rgba(22, 163, 74, .5);
+    background: rgba(22, 163, 74, .05);
+}
+.track-steps li.done .track-step-icon { background: var(--success); color: #fff; }
+.track-steps li.active {
+    border-color: var(--blue-500);
+    background: rgba(59, 130, 246, .07);
+    box-shadow: var(--shadow-xs);
+}
+.track-steps li.active .track-step-icon { background: var(--blue-500); color: #fff; }
+
+/* ---------- Flash alerts ---------- */
+.alert {
+    border-radius: var(--radius-sm);
+    border: none;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+.alert-dismissible .btn-close { opacity: .65; }
+.alert-info { background: rgba(59, 130, 246, .12); color: var(--navy-800); }
+
+/* ---------- Timeline / steps mini ---------- */
+.mini-steps { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.mini-step { font-size: .78rem; font-weight: 700; color: var(--muted); padding: .25rem .7rem; border-radius: 50rem; background: #f1f5f9; }
+.mini-step.done { background: rgba(22, 163, 74, .15); color: var(--success); }
+
+/* ---------- Footer ---------- */
+.app-footer {
+    background: var(--navy-900);
+    color: rgba(255, 255, 255, .75);
+    margin-top: 3.5rem;
+    padding: 3rem 0 1.5rem;
+}
+.app-footer h6 {
+    color: #fff;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: .4px;
+}
+.app-footer a {
+    color: rgba(255, 255, 255, .72);
+    text-decoration: none;
+    transition: color .18s ease;
+}
+.app-footer a:hover { color: var(--accent-400); }
+.app-footer .foot-link { display: block; padding: .18rem 0; font-weight: 600; font-size: .93rem; }
+.foot-bottom {
+    border-top: 1px solid rgba(255, 255, 255, .1);
+    margin-top: 2rem;
+    padding-top: 1.2rem;
+    color: rgba(255, 255, 255, .5);
+    font-size: .88rem;
+}
+
+/* ---------- Empty states ---------- */
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+.empty-state .empty-icon { font-size: 3rem; opacity: .4; margin-bottom: .6rem; display: block; }
+
+/* ---------- 404 / 500 ---------- */
+.error-page {
+    text-align: center;
+    padding: 5rem 1rem;
+}
+.error-page .code {
+    font-size: clamp(5rem, 16vw, 9rem);
+    font-weight: 900;
+    line-height: 1;
+    background: var(--grad-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.error-page .code span { color: var(--accent-500); }
+
+/* ---------- Page header strip ---------- */
+.page-head {
+    background: linear-gradient(135deg, #ff5a00 0%, #ff7a33 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 1.8rem 1.8rem;
+    box-shadow: 0 4px 16px rgba(255, 90, 0, .22);
+    margin-bottom: 1.4rem;
+    position: relative;
+    overflow: hidden;
+}
+.page-head::after {
+    content: "";
+    position: absolute;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(234, 179, 8, .22), transparent 65%);
+    top: -110px; inset-inline-end: -70px;
+}
+.page-head h3 { font-weight: 800; margin: 0; }
+.page-head p { color: rgba(255, 255, 255, .8); margin: .2rem 0 0; }
+
+/* ---------- RTL tweaks ---------- */
+[dir="rtl"] .text-uppercase { letter-spacing: .3px; }
+[dir="rtl"] body { text-align: right; }
+[dir="rtl"] .ms-auto { margin-left: 0 !important; margin-right: auto !important; }
+[dir="rtl"] .me-auto { margin-right: 0 !important; margin-left: auto !important; }
+
+/* ---------- Animations ---------- */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp .55s ease both; }
+.d-1 { animation-delay: .08s; } .d-2 { animation-delay: .16s; }
+.d-3 { animation-delay: .24s; } .d-4 { animation-delay: .32s; }
+.d-5 { animation-delay: .40s; } .d-6 { animation-delay: .48s; }
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #eef2f9; }
+::-webkit-scrollbar-thumb { background: #b7c3d9; border-radius: 50rem; }
+::-webkit-scrollbar-thumb:hover { background: #90a2c2; }
+
+/* ---------- Chips filter ---------- */
+.filter-chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+.chip {
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--muted);
+    border-radius: 50rem;
+    padding: .35rem 1rem;
+    font-weight: 700;
+    font-size: .86rem;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+.chip:hover { border-color: var(--blue-500); color: var(--blue-600); }
+.chip.active { background: var(--navy-800); border-color: var(--accent-500); color: #fef08a; box-shadow: 0 2px 10px rgba(2,6,23,.25); }
+
+/* ============================================================
+   Talabat clone additions — header, search, bottom nav
+   ============================================================ */
+.tala-body { padding-bottom: 0; }
+.tala-navbar {
+    background: #ff5a00 !important;
+    border-bottom: none !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12) !important;
+    padding: .55rem 0 !important;
+}
+.tala-navbar .navbar-brand { color: #fff !important; }
+.tala-nav-inner { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+.tala-brand { display:flex; align-items:center; gap:.6rem; font-weight:900; font-size:1.35rem; color:#fff !important; text-decoration:none; }
+.tala-brand img { border-radius:10px; background:#fff; padding:2px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+.tala-brand span { color:#fff; letter-spacing:-.3px; }
+.tala-brand small { color: rgba(255,255,255,.9); }
+
+.tala-deliver {
+    display:flex; align-items:center; gap:.6rem;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 50rem;
+    padding: .4rem .9rem;
+    color:#fff;
+    cursor:pointer;
+    transition: all .18s;
+    min-width:190px;
+    max-width:260px;
+}
+.tala-deliver:hover { background: rgba(255,255,255,.26); }
+.tala-deliver-icon { font-size:1.15rem; }
+.tala-deliver-text { display:flex; flex-direction:column; line-height:1.05; }
+.tala-deliver-text small { font-size:.68rem; opacity:.9; font-weight:700; text-transform:uppercase; letter-spacing:.6px; }
+.tala-deliver-text strong { font-size:.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px; }
+.tala-deliver-arrow { font-size:.65rem; opacity:.8; margin-inline-start:.2rem; }
+
+.tala-search {
+    position:relative;
+    display:flex; align-items:center;
+    background:#fff;
+    border-radius:50rem;
+    padding: .2rem .2rem .2rem 1rem;
+    box-shadow:0 2px 10px rgba(0,0,0,.10);
+    max-width:520px;
+    border:1.5px solid #fff;
+}
+.tala-search:focus-within { box-shadow:0 4px 16px rgba(0,0,0,.14); border-color:#ffe0cc; }
+.tala-search-icon { font-size:1rem; opacity:.5; margin-right:.5rem; }
+.tala-search input {
+    flex:1;
+    border:none; outline:none;
+    font-size:.92rem;
+    font-weight:600;
+    color:#212121;
+    background:transparent;
+    font-family: var(--font);
+}
+.tala-search input::placeholder { color:#9e9e9e; font-weight:500; }
+.tala-search-btn {
+    background: var(--talabat);
+    color:#fff;
+    border:none;
+    border-radius:50rem;
+    padding:.45rem 1.1rem;
+    font-weight:800;
+    font-size:.85rem;
+    cursor:pointer;
+    transition: all .18s;
+}
+.tala-search-btn:hover { background: var(--talabat-dark); }
+
+.tala-navlink { color:#fff !important; font-weight:700 !important; }
+.tala-navlink:hover { background: rgba(255,255,255,.18) !important; color:#fff !important; }
+.tala-icon-btn { color:#fff !important; background: rgba(255,255,255,.18); border-radius:50%; width:42px; height:42px; display:grid; place-items:center; }
+.tala-icon-btn:hover { background: rgba(255,255,255,.28) !important; color:#fff !important; }
+.tala-badge {
+    position:absolute; top:-4px; inset-inline-end:-4px;
+    background:#212121; color:#fff;
+    font-size:.62rem; font-weight:800;
+    min-width:18px; height:18px; padding:0 5px;
+    border-radius:50rem;
+    display:grid; place-items:center;
+    border:2px solid #ff5a00;
+    line-height:1;
+}
+.tala-lang-btn { background:#fff !important; color:var(--talabat) !important; border-radius:50rem !important; font-weight:800 !important; border:none !important; }
+.tala-user-pill {
+    background:#fff; color:var(--talabat) !important;
+    border-radius:50rem; padding:.35rem .9rem; font-weight:800; font-size:.85rem;
+    display:inline-flex; align-items:center; gap:.3rem;
+}
+.tala-toggler { border-color: rgba(255,255,255,.4) !important; }
+.tala-toggler .navbar-toggler-icon { filter: invert(1) brightness(2); }
+.tala-alert { border-radius:12px; border:none; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+
+.tala-subbar { background:#fff; border-bottom:1px solid #f0f0f0; position:sticky; top:56px; z-index:1020; box-shadow:0 2px 6px rgba(0,0,0,.04); }
+.tala-sub-deliver {
+    display:flex; align-items:center; gap:.6rem;
+    background:#fff7ed; border:1px solid #ffcc99; border-radius:50rem;
+    padding:.45rem .9rem; flex-grow:1; cursor:pointer;
+}
+.tala-sub-deliver small { display:block; font-size:.65rem; font-weight:800; color:#e65100; text-transform:uppercase; letter-spacing:.5px; line-height:1; }
+.tala-sub-deliver strong { font-size:.85rem; color:#212121; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tala-sub-cart { width:44px; height:44px; display:grid; place-items:center; background:#ff5a00; color:#fff; border-radius:50%; font-size:1.25rem; text-decoration:none; box-shadow:0 2px 8px rgba(255,90,0,.3); }
+
+.tala-bottom-nav {
+    position:fixed; bottom:0; left:0; right:0;
+    background:#fff;
+    border-top:1px solid #eeeeee;
+    display:flex; justify-content:space-around; align-items:center;
+    padding:.35rem 0 calc(.35rem + env(safe-area-inset-bottom));
+    z-index:1040;
+    box-shadow:0 -2px 12px rgba(0,0,0,.08);
+}
+.tala-bnav-item {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:.15rem;
+    color:#757575; text-decoration:none; font-weight:700; font-size:.68rem;
+    padding:.25rem .5rem; border-radius:12px; position:relative;
+    transition: all .18s;
+}
+.tala-bnav-item small { font-size:.68rem; letter-spacing:.1px; }
+.tala-bnav-icon { font-size:1.3rem; line-height:1; }
+.tala-bnav-item.active { color:var(--talabat); background:#fff7ed; }
+.tala-bnav-item.active .tala-bnav-icon { transform: scale(1.08); }
+.tala-bnav-badge {
+    position:absolute; top:2px; left:55%;
+    background:var(--talabat); color:#fff;
+    font-size:.62rem; font-weight:800;
+    min-width:18px; height:18px; padding:0 5px;
+    border-radius:50rem; display:grid; place-items:center;
+    border:2px solid #fff;
+}
+
+/* Talabat dish card */
+.tala-menu-card {
+    background:#fff;
+    border:1px solid #f0f0f0;
+    border-radius:16px;
+    padding: .9rem;
+    display:flex; gap:.9rem;
+    align-items:stretch;
+    transition: all .18s;
+    position:relative;
+    overflow:hidden;
+}
+.tala-menu-card:hover { border-color:#ffcc80; box-shadow:0 4px 14px rgba(0,0,0,.06); transform: translateY(-1px); }
+.tala-menu-info { flex:1; display:flex; flex-direction:column; gap:.3rem; min-width:0; }
+.tala-menu-title { font-weight:800; color:#212121; font-size:.98rem; line-height:1.3; display:flex; align-items:center; gap:.4rem; }
+.tala-menu-veg { width:14px; height:14px; border:1.5px solid #00a651; border-radius:2px; display:grid; place-items:center; flex-shrink:0; }
+.tala-menu-veg::after { content:""; width:6px; height:6px; background:#00a651; border-radius:50%; }
+.tala-menu-desc { color:#757575; font-size:.82rem; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.tala-menu-meta { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; font-size:.78rem; color:#616161; }
+.tala-menu-rating { display:inline-flex; align-items:center; gap:.25rem; background:#e8f5e9; color:#2e7d32; font-weight:800; padding:.15rem .5rem; border-radius:50rem; font-size:.75rem; }
+.tala-menu-price { font-weight:900; color:#212121; font-size:1rem; }
+.tala-menu-price small { color:#757575; font-weight:600; font-size:.78rem; text-decoration:line-through; margin-inline-start:.3rem; }
+.tala-menu-img-wrap { width:110px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+.tala-menu-img {
+    width:110px; height:110px; border-radius:12px; object-fit:cover;
+    border:1px solid #f5f5f5; background:#fafafa;
+}
+.tala-add-btn {
+    background:#fff; color:var(--talabat);
+    border:1.5px solid var(--talabat);
+    border-radius:12px; font-weight:900; font-size:.82rem;
+    padding:.35rem .9rem; width:92px; text-align:center;
+    box-shadow:0 2px 8px rgba(255,90,0,.12);
+    cursor:pointer; transition: all .18s;
+}
+.tala-add-btn:hover { background:var(--talabat); color:#fff; transform: translateY(-1px); box-shadow:0 4px 12px rgba(255,90,0,.22); }
+.tala-add-btn.added { background:var(--talabat); color:#fff; border-color:var(--talabat); }
+.tala-qty { display:flex; align-items:center; gap:.4rem; background:#fff; border:1.5px solid var(--talabat); border-radius:12px; overflow:hidden; width:92px; height:36px; }
+.tala-qty button { width:32px; height:100%; border:none; background:#fff7ed; color:var(--talabat); font-weight:900; font-size:1.1rem; cursor:pointer; }
+.tala-qty span { flex:1; text-align:center; font-weight:900; font-size:.9rem; }
+
+/* Talabat basket summary */
+.tala-basket { background:#fff; border:1px solid #eeeeee; border-radius:16px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.06); }
+.tala-basket-head { padding:1rem 1.2rem; font-weight:900; color:#212121; border-bottom:1px solid #f5f5f5; display:flex; justify-content:space-between; align-items:center; }
+.tala-basket-row { display:flex; justify-content:space-between; align-items:center; padding:.6rem 1.2rem; font-size:.9rem; }
+.tala-basket-row.muted { color:#757575; font-size:.85rem; }
+.tala-basket-total { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.2rem; font-weight:900; font-size:1.05rem; border-top:1px dashed #e0e0e0; background:#fffdf7; }
+.tala-promo { display:flex; gap:.5rem; padding: .8rem 1.2rem; border-top:1px solid #f5f5f5; }
+.tala-promo input { flex:1; border:1.5px solid #e0e0e0; border-radius:12px; padding:.55rem .9rem; font-weight:600; }
+.tala-promo input:focus { border-color:var(--talabat); outline:none; box-shadow:0 0 0 3px rgba(255,90,0,.12); }
+
+/* Category chips talabat */
+.tala-chips { display:flex; gap:.5rem; overflow-x:auto; scrollbar-width:none; padding-bottom:.3rem; }
+.tala-chips::-webkit-scrollbar { display:none; }
+.tala-chip {
+    white-space:nowrap; border:1.5px solid #e0e0e0; background:#fff; color:#424242;
+    border-radius:50rem; padding:.45rem 1rem; font-weight:800; font-size:.82rem; cursor:pointer; text-decoration:none; transition:all .18s;
+}
+.tala-chip:hover { border-color:var(--talabat); color:var(--talabat); }
+.tala-chip.active { background:var(--talabat); border-color:var(--talabat); color:#fff; box-shadow:0 2px 8px rgba(255,90,0,.22); }
+
+/* Mobile sticky basket bar */
+.tala-sticky-basket {
+    position:fixed; bottom:64px; left:12px; right:12px;
+    background:#212121; color:#fff; border-radius:16px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:.7rem 1rem; box-shadow:0 8px 20px rgba(0,0,0,.22);
+    z-index:1039; text-decoration:none;
+}
+.tala-sticky-basket strong { color:#fff; }
+.tala-sticky-basket span { background:var(--talabat); color:#fff; padding:.35rem .8rem; border-radius:50rem; font-weight:800; font-size:.82rem; }
+
+@media (max-width: 768px) {
+    .hero { padding: 3rem 1.4rem; }
+    .hero-stats { gap: 1.5rem; }
+    .hero-gear { width: 170px; height: 170px; font-size: 4.4rem; }
+    .tala-nav-inner { gap:.5rem; }
+    .tala-search { max-width:100%; order:3; flex-basis:100%; }
+    .tala-body { padding-bottom:64px; }
+    .tala-menu-img-wrap { width:96px; }
+    .tala-menu-img { width:96px; height:96px; }
+    .panel-head { flex-wrap: wrap; }
+}
